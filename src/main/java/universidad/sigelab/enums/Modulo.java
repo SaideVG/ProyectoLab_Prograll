@@ -1,0 +1,5 @@
+package universidad.sigelab.enums;
+
+public enum Modulo {
+    USUARIOS, LABORATORIOS, TIPOS_EQUIPO, EQUIPOS, PRESTAMOS, DEVOLUCIONES, MANTENIMIENTO, AUDITORIA, REPORTES
+}

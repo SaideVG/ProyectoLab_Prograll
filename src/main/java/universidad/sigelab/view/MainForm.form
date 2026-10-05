@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="universidad.sigelab.view.MainForm">
+  <grid id="27dc6" binding="panelPrincipal" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="15" left="20" bottom="15" right="20" />
+    <constraints>
+      <xy x="20" y="20" width="780" height="720" />
+    </constraints>
+    <properties />
+    <border type="none" />
+    <children>
+      <component id="281f2" class="javax.swing.JLabel" binding="lblTitulo">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="SIGELAB - GESTIÓN Y CONTROL DE LABORATORIOS" />
+        </properties>
+      </component>
+      <component id="283e5" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Universidad Mariano Gálvez - Programación II" />
+        </properties>
+      </component>
+      <component id="285d8" class="javax.swing.JLabel" binding="lblUsuario">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Usuario:" />
+        </properties>
+      </component>
+      <grid id="29763" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="8" left="8" bottom="8" right="8" />
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties />
+        <border type="etched" title="Resumen" />
+        <children>
+          <component id="287cb" class="javax.swing.JLabel" binding="lblTotalEquipos">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Equipos:" />
+            </properties>
+          </component>
+          <component id="289be" class="javax.swing.JLabel" binding="lblDisponibles">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Disponibles:" />
+            </properties>
+          </component>
+          <component id="28bb1" class="javax.swing.JLabel" binding="lblPrestados">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Prestados:" />
+            </properties>
+          </component>
+          <component id="28da4" class="javax.swing.JLabel" binding="lblDanados">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Dañados:" />
+            </properties>
+          </component>
+          <component id="28f97" class="javax.swing.JLabel" binding="lblEnMantenimiento">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="En mantenimiento:" />
+            </properties>
+          </component>
+          <component id="2918a" class="javax.swing.JLabel" binding="lblDeBaja">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="De baja:" />
+            </properties>
+          </component>
+          <component id="2937d" class="javax.swing.JLabel" binding="lblPrestamosActivos">
+            <constraints>
+              <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Préstamos activos:" />
+            </properties>
+          </component>
+          <component id="29570" class="javax.swing.JLabel" binding="lblPrestamosVencidos">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Préstamos vencidos:" />
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="29956" class="javax.swing.JButton" binding="btnEquipos">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="EQUIPOS" />
+        </properties>
+      </component>
+      <component id="29b49" class="javax.swing.JButton" binding="btnPrestamos">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="PRÉSTAMOS" />
+        </properties>
+      </component>
+      <component id="29d3c" class="javax.swing.JButton" binding="btnDevoluciones">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="DEVOLUCIONES" />
+        </properties>
+      </component>
+      <component id="29f2f" class="javax.swing.JButton" binding="btnMantenimiento">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="MANTENIMIENTO" />
+        </properties>
+      </component>
+      <component id="2a122" class="javax.swing.JButton" binding="btnReportes">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="REPORTES" />
+        </properties>
+      </component>
+      <component id="2a315" class="javax.swing.JButton" binding="btnUsuarios">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="USUARIOS" />
+        </properties>
+      </component>
+      <component id="2a508" class="javax.swing.JButton" binding="btnLaboratorios">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="LABORATORIOS" />
+        </properties>
+      </component>
+      <component id="2a6fb" class="javax.swing.JButton" binding="btnTiposEquipo">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="TIPOS DE EQUIPO" />
+        </properties>
+      </component>
+      <component id="2a8ee" class="javax.swing.JButton" binding="btnAuditoria">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="AUDITORÍA" />
+        </properties>
+      </component>
+      <component id="2aae1" class="javax.swing.JButton" binding="btnCerrarSesion">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="CERRAR SESIÓN" />
+        </properties>
+      </component>
+      <component id="2acd4" class="javax.swing.JButton" binding="btnSalir">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="SALIR" />
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
