@@ -1,0 +1,11 @@
+package universidad.sigelab.enums;
+
+public enum AccionAuditoria {
+    LOGIN_EXITOSO,
+    LOGIN_FALLIDO,
+    PRESTAMO_CREADO,
+    EQUIPO_DEVUELTO,
+    EQUIPO_ENVIADO_MANTENIMIENTO,
+    MANTENIMIENTO_FINALIZADO,
+    USUARIO_DESACTIVADO
+}

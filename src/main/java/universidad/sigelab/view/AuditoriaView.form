@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="universidad.sigelab.view.AuditoriaView">
+  <grid id="27dc6" binding="panelPrincipal" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="15" left="20" bottom="15" right="20" />
+    <constraints>
+      <xy x="20" y="20" width="1150" height="660" />
+    </constraints>
+    <properties />
+    <border type="none" />
+    <children>
+      <component id="24d51" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="AUDITORÍA" />
+        </properties>
+      </component>
+      <grid id="25710" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0" />
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties />
+        <border type="none" />
+        <children>
+          <component id="24f44" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Acción" />
+            </properties>
+          </component>
+          <component id="25137" class="javax.swing.JComboBox" binding="cboAccion">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties />
+          </component>
+          <component id="2532a" class="javax.swing.JButton" binding="btnConsultar">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="Consultar" />
+            </properties>
+          </component>
+          <component id="2551d" class="javax.swing.JLabel" binding="lblTotal">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+            </constraints>
+            <properties>
+              <text value="0 evento(s)" />
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <scrollpane id="25903">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="350" />
+          </grid>
+        </constraints>
+        <properties />
+        <border type="none" />
+        <children>
+          <component id="25af6" class="javax.swing.JTable" binding="tblAuditoria">
+            <constraints />
+            <properties />
+          </component>
+        </children>
+      </scrollpane>
+      <component id="25ce9" class="javax.swing.JButton" binding="btnSalir">
+        <constraints>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Salir" />
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
