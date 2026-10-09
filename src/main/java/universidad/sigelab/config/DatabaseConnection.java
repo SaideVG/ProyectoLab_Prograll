@@ -10,7 +10,7 @@ public class DatabaseConnection {
             "sigelab.db.url", "DB_URL",
             "jdbc:sqlserver://localhost:1433;databaseName=SigelabDB;encrypt=true;trustServerCertificate=true;sendTimeAsDatetime=false;");
     private static final String USER = configuracion("sigelab.db.user", "DB_USER", "sa");
-    private static final String PASSWORD = configuracion("sigelab.db.password", "DB_PASSWORD", "Dev2025!");
+    private static final String PASSWORD = configuracion("sigelab.db.password", "DB_PASSWORD", "ProyecLAB26");
 
     private DatabaseConnection() {
     }
