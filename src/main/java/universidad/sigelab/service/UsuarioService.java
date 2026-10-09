@@ -4,6 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import universidad.sigelab.enums.AccionAuditoria;
 import universidad.sigelab.enums.EstadoRegistro;
 import universidad.sigelab.enums.Modulo;
+import universidad.sigelab.enums.RolUsuario;
 import universidad.sigelab.model.Rol;
 import universidad.sigelab.model.Usuario;
 import universidad.sigelab.repository.RolRepository;
@@ -87,6 +88,27 @@ public class UsuarioService {
 
     public boolean guardar(Usuario usuario, String password) {
         Sesion.exigirAcceso(Modulo.USUARIOS);
+        validar(usuario);
+        exigirDatosUnicos(usuario, 0);
+        usuario.setPasswordHash(BCrypt.hashpw(passwordValida(password), BCrypt.gensalt()));
+        usuario.setEstado(EstadoRegistro.ACTIVO);
+        return repository.guardar(usuario);
+    }
+
+    /**
+     * Autorregistro desde la pantalla de login.
+     *
+     * A diferencia de guardar(), no exige una sesión iniciada (todavía no hay
+     * usuario autenticado) y asigna siempre el rol DOCENTE, que es el de menor
+     * privilegio, para que desde la pantalla pública nadie pueda crearse un ADMIN.
+     */
+    public boolean registrar(Usuario usuario, String password) {
+        Rol docente = rolRepository.listar().stream()
+                .filter(rol -> rol.getNombre() == RolUsuario.DOCENTE)
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("No existe el rol DOCENTE en la base de datos."));
+
+        usuario.setRol(docente);
         validar(usuario);
         exigirDatosUnicos(usuario, 0);
         usuario.setPasswordHash(BCrypt.hashpw(passwordValida(password), BCrypt.gensalt()));

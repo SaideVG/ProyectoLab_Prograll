@@ -23,6 +23,7 @@ public class UsuarioController {
     public void cerrarSesion() { Sesion.cerrar(); }
 
     public boolean guardar(Usuario usuario, String password) { return service.guardar(usuario, password); }
+    public boolean registrar(Usuario usuario, String password) { return service.registrar(usuario, password); }
     public boolean actualizar(Usuario usuario, String password) { return service.actualizar(usuario, password); }
     public boolean cambiarEstado(int id, EstadoRegistro nuevoEstado) { return service.cambiarEstado(id, nuevoEstado); }
     public List<Usuario> listar() { return service.listar(); }
