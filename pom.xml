@@ -27,6 +27,18 @@
             <version>0.4</version>
         </dependency>
 
+        <!--
+            Runtime del GUI Designer de IntelliJ.
+            Los formularios (.form) generan código que usa
+            com.intellij.uiDesigner.core.GridLayoutManager; sin este
+            jar las clases fallarían con NoClassDefFoundError.
+        -->
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>
