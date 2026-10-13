@@ -24,7 +24,7 @@ import java.awt.event.MouseEvent;
 class BotonRedondeado extends JButton {
 
     /** Variantes de color para no repetir colores en cada pantalla. */
-    enum Estilo { PRIMARIO, SECUNDARIO, CLARO, PELIGRO }
+    enum Estilo { PRIMARIO, SECUNDARIO, CLARO, TEXTO, PELIGRO }
 
     private Color fondo;
     private Color fondoHover;
@@ -32,7 +32,7 @@ class BotonRedondeado extends JButton {
     private Color colorTexto;
     private Color colorBorde;
 
-    private int radio = 16;
+    private int radio = 12;
     private boolean sobreElBoton;
     private boolean presionado;
     private float escala = 1f;
@@ -108,6 +108,13 @@ class BotonRedondeado extends JButton {
                 colorTexto = Tema.PRIMARIO;
                 colorBorde = null;
             }
+            case TEXTO -> {
+                fondo = new Color(0, 0, 0, 0);
+                fondoHover = Tema.AZUL_CLARO;
+                fondoPresionado = Tema.AZUL_CLARO_HOVER;
+                colorTexto = Tema.TEXTO_SUAVE;
+                colorBorde = null;
+            }
             case PELIGRO -> {
                 fondo = Tema.PELIGRO;
                 fondoHover = Tema.PELIGRO_HOVER;
@@ -163,7 +170,7 @@ class BotonRedondeado extends JButton {
     @Override
     public Dimension getPreferredSize() {
         Dimension base = super.getPreferredSize();
-        return new Dimension(base.width + 30, Math.max(42, base.height + 16));
+        return new Dimension(base.width + 30, Math.max(46, base.height + 18));
     }
 
     @Override

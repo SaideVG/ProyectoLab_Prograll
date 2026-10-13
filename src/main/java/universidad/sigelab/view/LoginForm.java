@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -21,14 +22,18 @@ import java.awt.Window;
 /**
  * Pantalla de inicio de sesión.
  *
- * La interfaz se construye por código (no con el diseñador de formularios)
- * para poder aplicar la paleta de {@link Tema}, esquinas redondeadas y las
- * animaciones de entrada y de los botones.
+ * La interfaz se construye por código (no con el diseñador de formularios) para
+ * poder aplicar la paleta de {@link Tema}, esquinas redondeadas y animaciones.
+ * Es una pantalla dividida: a la izquierda el formulario y a la derecha una
+ * ilustración decorativa.
  */
 public class LoginForm {
 
+    private static final int ANCHO_PANEL = 400;
+    private static final int ALTO_PANEL = 620;
+    private static final int ANCHO_CAMPO = 300;
+
     private JPanel panelPrincipal;
-    private JLabel lblTitulo;
     private CampoTexto txtUsuario;
     private CampoPassword txtPassword;
     private BotonRedondeado btnIngresar;
@@ -55,79 +60,105 @@ public class LoginForm {
      */
 
     private void construirUI() {
-        panelPrincipal = new JPanel(new GridBagLayout());
-        panelPrincipal.setBackground(Tema.FONDO);
-        // Margen alrededor de la tarjeta para que nunca toque los bordes de la ventana.
-        panelPrincipal.setBorder(new EmptyBorder(28, 28, 28, 28));
+        panelPrincipal = new JPanel(new BorderLayout());
+        panelPrincipal.setBackground(Tema.SUPERFICIE);
+        panelPrincipal.setPreferredSize(new Dimension(ANCHO_PANEL + 520, ALTO_PANEL));
 
-        PanelRedondeado tarjeta = new PanelRedondeado();
-        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
-        tarjeta.setBorder(new EmptyBorder(38, 36, 34, 36));
+        panelPrincipal.add(crearPanelFormulario(), BorderLayout.WEST);
+        panelPrincipal.add(new PanelIlustracion(), BorderLayout.CENTER);
+    }
 
-        lblTitulo = new JLabel("SIGELAB");
+    private JPanel crearPanelFormulario() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Tema.SUPERFICIE);
+        panel.setPreferredSize(new Dimension(ANCHO_PANEL, ALTO_PANEL));
+
+        JPanel contenido = new JPanel();
+        contenido.setOpaque(false);
+        contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
+        contenido.setBorder(new EmptyBorder(0, 46, 0, 46));
+
+        JLabel lblTitulo = new JLabel("SIGELAB", SwingConstants.CENTER);
         lblTitulo.setFont(Tema.titulo());
         lblTitulo.setForeground(Tema.PRIMARIO);
-        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel lblSubtitulo = new JLabel(
                 "<html><div style='text-align:center;'>"
                         + "Sistema de Gestión y Control<br>de Laboratorios Universitarios"
-                        + "</div></html>");
+                        + "</div></html>",
+                SwingConstants.CENTER);
         lblSubtitulo.setFont(Tema.subtitulo());
         lblSubtitulo.setForeground(Tema.TEXTO_SUAVE);
-        lblSubtitulo.setHorizontalAlignment(SwingConstants.CENTER);
 
-        anchoCompleto(lblTitulo);
-        anchoCompleto(lblSubtitulo);
-
-        JLabel lblUsuario = etiqueta("Nombre de usuario o código");
+        JLabel lblUsuario = etiqueta("NOMBRE DE USUARIO O CÓDIGO");
         txtUsuario = new CampoTexto(18);
-        txtUsuario.setAnchoPreferido(300);
+        txtUsuario.setAnchoPreferido(ANCHO_CAMPO);
+        txtUsuario.setPlaceholder("Ej. 020240182 ojperez");
 
-        JLabel lblPassword = etiqueta("Contraseña");
+        JLabel lblPassword = etiqueta("CONTRASEÑA");
         txtPassword = new CampoPassword(18);
-        txtPassword.setAnchoPreferido(300);
+        txtPassword.setAnchoPreferido(ANCHO_CAMPO);
+
+        JPanel filaPassword = new JPanel(new BorderLayout());
+        filaPassword.setOpaque(false);
+        filaPassword.add(lblPassword, BorderLayout.WEST);
+        filaPassword.add(new Enlace("¿Olvidó su clave?", this::recordarClave), BorderLayout.EAST);
 
         btnIngresar = new BotonRedondeado("Ingresar", BotonRedondeado.Estilo.PRIMARIO);
         btnRegistro = new BotonRedondeado("Registro nuevo", BotonRedondeado.Estilo.SECUNDARIO);
-        btnSalir = new BotonRedondeado("Salir", BotonRedondeado.Estilo.CLARO);
+        btnSalir = new BotonRedondeado("Salir", BotonRedondeado.Estilo.TEXTO);
 
+        anchoCompleto(lblTitulo);
+        anchoCompleto(lblSubtitulo);
+        anchoCompleto(lblUsuario);
         anchoCompleto(txtUsuario);
+        anchoCompleto(filaPassword);
         anchoCompleto(txtPassword);
         anchoCompleto(btnIngresar);
         anchoCompleto(btnRegistro);
         anchoCompleto(btnSalir);
 
-        tarjeta.add(lblTitulo);
-        tarjeta.add(Box.createVerticalStrut(4));
-        tarjeta.add(lblSubtitulo);
-        tarjeta.add(Box.createVerticalStrut(26));
-        tarjeta.add(lblUsuario);
-        tarjeta.add(Box.createVerticalStrut(6));
-        tarjeta.add(txtUsuario);
-        tarjeta.add(Box.createVerticalStrut(14));
-        tarjeta.add(lblPassword);
-        tarjeta.add(Box.createVerticalStrut(6));
-        tarjeta.add(txtPassword);
-        tarjeta.add(Box.createVerticalStrut(26));
-        tarjeta.add(btnIngresar);
-        tarjeta.add(Box.createVerticalStrut(10));
-        tarjeta.add(btnRegistro);
-        tarjeta.add(Box.createVerticalStrut(10));
-        tarjeta.add(btnSalir);
+        contenido.add(lblTitulo);
+        contenido.add(Box.createVerticalStrut(6));
+        contenido.add(lblSubtitulo);
+        contenido.add(Box.createVerticalStrut(34));
+        contenido.add(lblUsuario);
+        contenido.add(Box.createVerticalStrut(7));
+        contenido.add(txtUsuario);
+        contenido.add(Box.createVerticalStrut(16));
+        contenido.add(filaPassword);
+        contenido.add(Box.createVerticalStrut(7));
+        contenido.add(txtPassword);
+        contenido.add(Box.createVerticalStrut(26));
+        contenido.add(btnIngresar);
+        contenido.add(Box.createVerticalStrut(10));
+        contenido.add(btnRegistro);
+        contenido.add(Box.createVerticalStrut(10));
+        contenido.add(btnSalir);
 
-        panelPrincipal.add(tarjeta);
+        JPanel centro = new JPanel(new GridBagLayout());
+        centro.setOpaque(false);
+        centro.add(contenido);
+        panel.add(centro, BorderLayout.CENTER);
+
+        JLabel pie = new JLabel("SIGELAB v2.4   ·   Departamento de Laboratorios 2026", SwingConstants.CENTER);
+        pie.setFont(Tema.pie());
+        pie.setForeground(Tema.PIE);
+        pie.setBorder(new EmptyBorder(0, 0, 18, 0));
+        panel.add(pie, BorderLayout.SOUTH);
+
+        return panel;
     }
 
     private JLabel etiqueta(String texto) {
         JLabel etiqueta = new JLabel(texto);
         etiqueta.setFont(Tema.etiqueta());
-        etiqueta.setForeground(Tema.TEXTO);
-        etiqueta.setAlignmentX(Component.LEFT_ALIGNMENT);
+        etiqueta.setForeground(Tema.ETIQUETA);
         etiqueta.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
         return etiqueta;
     }
 
+    /** Hace que un componente ocupe todo el ancho disponible dentro del panel. */
     private void anchoCompleto(JComponent componente) {
         componente.setAlignmentX(Component.LEFT_ALIGNMENT);
         Dimension preferido = componente.getPreferredSize();
@@ -155,6 +186,8 @@ public class LoginForm {
 
         // Enter equivale a presionar Ingresar.
         frame.getRootPane().setDefaultButton(loginForm.btnIngresar);
+
+        SwingUtilities.invokeLater(() -> loginForm.txtUsuario.requestFocusInWindow());
 
         Animaciones.mostrarConDesvanecido(frame);
     }
@@ -188,6 +221,13 @@ public class LoginForm {
             txtPassword.setText("");
             Dialogos.error(panelPrincipal, e);
         }
+    }
+
+    private void recordarClave() {
+        Dialogos.informar(panelPrincipal,
+                "La recuperación de contraseña la gestiona el Departamento de Laboratorios.\n"
+                        + "Comuníquese con el administrador del sistema.",
+                "Recuperar contraseña");
     }
 
     /** Cierra únicamente la ventana del login. */
