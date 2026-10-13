@@ -11,28 +11,35 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
 
 /**
  * Formulario para dar de alta un usuario nuevo.
  *
- * Se abre desde el botón "Registro nuevo" del login. Usa la misma paleta que
- * el login (Tema) y los mismos botones/campos redondeados para que las dos
+ * Se abre desde el botón "Registro nuevo" del login y usa la misma paleta
+ * ({@link Tema}) y los mismos componentes redondeados, para que las dos
  * pantallas se vean consistentes.
  */
 class RegistroUsuarioForm {
 
+    private static final int ANCHO_CAMPO = 300;
+
     private final JDialog dialogo;
     private final UsuarioController usuarioController;
+    private final IndicadorConexion indicador = new IndicadorConexion();
 
     private CampoTexto txtNombre;
     private CampoTexto txtApellido;
@@ -59,6 +66,9 @@ class RegistroUsuarioForm {
         dialogo.pack();
         dialogo.setLocationRelativeTo(duenio);
         dialogo.getRootPane().setDefaultButton(btnRegistrar);
+
+        indicador.verificar();
+        SwingUtilities.invokeLater(() -> txtNombre.requestFocusInWindow());
     }
 
     /*
@@ -71,27 +81,19 @@ class RegistroUsuarioForm {
         JPanel fondo = new JPanel(new GridBagLayout());
         fondo.setBackground(Tema.FONDO);
         // Margen alrededor de la tarjeta para que nunca toque los bordes de la ventana.
-        fondo.setBorder(new EmptyBorder(24, 24, 24, 24));
+        fondo.setBorder(new EmptyBorder(22, 22, 22, 22));
 
         PanelRedondeado tarjeta = new PanelRedondeado();
-        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
-        tarjeta.setBorder(new EmptyBorder(30, 34, 28, 34));
+        tarjeta.setLayout(new BorderLayout());
+        tarjeta.setBorder(new EmptyBorder(28, 36, 16, 36));
 
-        JLabel titulo = new JLabel("Registro de usuarios");
+        JLabel titulo = new JLabel("Registro de usuarios", SwingConstants.CENTER);
         titulo.setFont(Tema.titulo());
         titulo.setForeground(Tema.PRIMARIO);
-        titulo.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel subtitulo = new JLabel(
-                "<html><div style='text-align:center;'>"
-                        + "Complete los datos<br>para crear una cuenta"
-                        + "</div></html>");
+        JLabel subtitulo = new JLabel("Complete los datos para crear una cuenta", SwingConstants.CENTER);
         subtitulo.setFont(Tema.subtitulo());
         subtitulo.setForeground(Tema.TEXTO_SUAVE);
-        subtitulo.setHorizontalAlignment(SwingConstants.CENTER);
-
-        anchoCompleto(titulo);
-        anchoCompleto(subtitulo);
 
         JPanel formulario = new JPanel(new GridBagLayout());
         formulario.setOpaque(false);
@@ -103,52 +105,88 @@ class RegistroUsuarioForm {
         txtPassword = new CampoPassword(18);
         txtConfirmar = new CampoPassword(18);
 
-        agregarFila(formulario, 0, "Nombre", txtNombre);
-        agregarFila(formulario, 1, "Apellido", txtApellido);
-        agregarFila(formulario, 2, "Nombre de usuario", txtUsuario);
-        agregarFila(formulario, 3, "Correo", txtCorreo);
-        agregarFila(formulario, 4, "Contraseña", txtPassword);
-        agregarFila(formulario, 5, "Confirmar contraseña", txtConfirmar);
+        agregarFila(formulario, 0, "Nombre", txtNombre, "Ej. Juan");
+        agregarFila(formulario, 1, "Apellido", txtApellido, "Ej. Pérez");
+        agregarFila(formulario, 2, "Nombre de usuario", txtUsuario, "jperez_lab");
+        agregarFila(formulario, 3, "Correo", txtCorreo, "usuario@universidad.edu");
+        agregarFila(formulario, 4, "Contraseña", txtPassword, null);
+        agregarFila(formulario, 5, "Confirmar contraseña", txtConfirmar, null);
+
+        JLabel obligatorios = new JLabel("Todos los campos son obligatorios", SwingConstants.RIGHT);
+        obligatorios.setFont(Tema.etiquetaMedia());
+        obligatorios.setForeground(Tema.TEXTO_SUAVE);
 
         btnRegistrar = new BotonRedondeado("Registrar", BotonRedondeado.Estilo.PRIMARIO);
-        BotonRedondeado btnLimpiar = new BotonRedondeado("Limpiar", BotonRedondeado.Estilo.CLARO);
-        BotonRedondeado btnCancelar = new BotonRedondeado("Cancelar", BotonRedondeado.Estilo.CLARO);
+        BotonRedondeado btnLimpiar = new BotonRedondeado("Limpiar", BotonRedondeado.Estilo.SECUNDARIO);
+        BotonRedondeado btnCancelar = new BotonRedondeado("Cancelar", BotonRedondeado.Estilo.TEXTO);
 
         btnRegistrar.addActionListener(e -> registrar());
         btnLimpiar.addActionListener(e -> limpiar());
         btnCancelar.addActionListener(e -> dialogo.dispose());
 
-        JPanel botones = new JPanel(new GridLayout(1, 3, 10, 0));
-        botones.setOpaque(false);
-        botones.add(btnRegistrar);
-        botones.add(btnLimpiar);
-        botones.add(btnCancelar);
+        JPanel derecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        derecha.setOpaque(false);
+        derecha.add(btnLimpiar);
+        derecha.add(btnCancelar);
 
+        JPanel botones = new JPanel(new BorderLayout());
+        botones.setOpaque(false);
+        botones.add(btnRegistrar, BorderLayout.WEST);
+        botones.add(derecha, BorderLayout.EAST);
+
+        JPanel contenido = new JPanel();
+        contenido.setOpaque(false);
+        contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
+
+        anchoCompleto(titulo);
+        anchoCompleto(subtitulo);
         anchoCompleto(formulario);
+        anchoCompleto(obligatorios);
         anchoCompleto(botones);
 
-        tarjeta.add(titulo);
-        tarjeta.add(Box.createVerticalStrut(4));
-        tarjeta.add(subtitulo);
-        tarjeta.add(Box.createVerticalStrut(24));
-        tarjeta.add(formulario);
-        tarjeta.add(Box.createVerticalStrut(22));
-        tarjeta.add(botones);
+        contenido.add(titulo);
+        contenido.add(Box.createVerticalStrut(4));
+        contenido.add(subtitulo);
+        contenido.add(Box.createVerticalStrut(26));
+        contenido.add(formulario);
+        contenido.add(Box.createVerticalStrut(14));
+        contenido.add(obligatorios);
+        contenido.add(Box.createVerticalStrut(16));
+        contenido.add(botones);
+
+        tarjeta.add(contenido, BorderLayout.CENTER);
+        tarjeta.add(crearPie(), BorderLayout.SOUTH);
 
         fondo.add(tarjeta);
         return fondo;
     }
 
-    private void agregarFila(JPanel panel, int fila, String textoEtiqueta, Component campo) {
+    private JPanel crearPie() {
+        JPanel pie = new JPanel(new BorderLayout());
+        pie.setOpaque(false);
+        pie.setBorder(new CompoundBorder(
+                new MatteBorder(1, 0, 0, 0, Tema.BORDE),
+                new EmptyBorder(12, 0, 0, 0)));
+
+        JLabel version = new JLabel("SIGELAB v2.4");
+        version.setFont(Tema.pie());
+        version.setForeground(Tema.TEXTO_SUAVE);
+
+        pie.add(indicador, BorderLayout.WEST);
+        pie.add(version, BorderLayout.EAST);
+        return pie;
+    }
+
+    private void agregarFila(JPanel panel, int fila, String textoEtiqueta, JComponent campo, String placeholder) {
         GridBagConstraints texto = new GridBagConstraints();
         texto.gridx = 0;
         texto.gridy = fila;
         texto.anchor = GridBagConstraints.LINE_END;
-        texto.insets = new Insets(6, 0, 6, 12);
+        texto.insets = new Insets(7, 0, 7, 14);
 
         JLabel etiqueta = new JLabel(textoEtiqueta);
-        etiqueta.setFont(Tema.etiqueta());
-        etiqueta.setForeground(Tema.TEXTO);
+        etiqueta.setFont(Tema.etiquetaMedia());
+        etiqueta.setForeground(Tema.ETIQUETA);
         panel.add(etiqueta, texto);
 
         GridBagConstraints contenedor = new GridBagConstraints();
@@ -156,12 +194,14 @@ class RegistroUsuarioForm {
         contenedor.gridy = fila;
         contenedor.weightx = 1;
         contenedor.fill = GridBagConstraints.HORIZONTAL;
-        contenedor.insets = new Insets(6, 0, 6, 0);
-        int anchoCampo = 230;
+        contenedor.insets = new Insets(7, 0, 7, 0);
+
         if (campo instanceof CampoTexto campoTexto) {
-            campoTexto.setAnchoPreferido(anchoCampo);
+            campoTexto.setAnchoPreferido(ANCHO_CAMPO);
+            campoTexto.setPlaceholder(placeholder);
         } else if (campo instanceof CampoPassword campoPassword) {
-            campoPassword.setAnchoPreferido(anchoCampo);
+            campoPassword.setAnchoPreferido(ANCHO_CAMPO);
+            campoPassword.setPlaceholder(placeholder);
         }
         panel.add(campo, contenedor);
     }
