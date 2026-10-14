@@ -39,6 +39,19 @@
             <version>7.0.3</version>
         </dependency>
 
+        <!--
+            OpenCV para el reconocimiento facial (RN-02).
+            El paquete de org.openpnp incluye las librerías nativas de
+            Windows, Linux y macOS, y las clases FaceDetectorYN (detección
+            de rostro, modelo YuNet) y FaceRecognizerSF (reconocimiento,
+            modelo SFace) del módulo objdetect.
+        -->
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.9.0-0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
