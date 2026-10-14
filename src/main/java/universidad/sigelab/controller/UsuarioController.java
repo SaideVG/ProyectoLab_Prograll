@@ -4,6 +4,7 @@ import universidad.sigelab.enums.EstadoRegistro;
 import universidad.sigelab.model.Rol;
 import universidad.sigelab.model.Usuario;
 import universidad.sigelab.service.UsuarioService;
+import universidad.sigelab.service.ValidadorRostro;
 import universidad.sigelab.util.Sesion;
 
 import java.util.List;
@@ -14,11 +15,20 @@ public class UsuarioController {
     public UsuarioController() { this(new UsuarioService()); }
     public UsuarioController(UsuarioService service) { this.service = service; }
 
-    public Usuario iniciarSesion(String usuario, String password) {
-        Usuario autenticado = service.autenticar(usuario, password);
+    /**
+     * Inicia sesión con los dos factores. El {@link ValidadorRostro} lo aporta la
+     * View (pantalla de la cámara); puede ser null cuando el usuario no tiene
+     * rostro registrado.
+     */
+    public Usuario iniciarSesion(String usuario, String password, ValidadorRostro validadorRostro) {
+        Usuario autenticado = service.autenticar(usuario, password, validadorRostro);
         Sesion.iniciar(autenticado);
         return autenticado;
     }
+
+    public boolean tieneRostroRegistrado(int idUsuario) { return service.tieneRostroRegistrado(idUsuario); }
+    public void registrarRostro(Usuario usuario, float[] vector) { service.registrarRostro(usuario, vector); }
+    public void eliminarRostro(Usuario usuario) { service.eliminarRostro(usuario); }
 
     public void cerrarSesion() { Sesion.cerrar(); }
 

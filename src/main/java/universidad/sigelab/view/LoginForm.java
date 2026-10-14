@@ -210,16 +210,35 @@ public class LoginForm {
     }
 
     private void ingresar() {
+        Window ventana = SwingUtilities.getWindowAncestor(panelPrincipal);
         try {
             Usuario usuario = usuarioController.iniciarSesion(
                     txtUsuario.getText().trim(),
-                    new String(txtPassword.getPassword()));
+                    new String(txtPassword.getPassword()),
+                    (autenticado, rostroRegistrado) ->
+                            DialogoValidacionFacial.aprobar(ventana, autenticado, rostroRegistrado));
 
+            ofrecerRegistroRostro(ventana, usuario);
             MainForm.mostrar(usuario);
             cerrarVentana();
         } catch (Exception e) {
             txtPassword.setText("");
             Dialogos.error(panelPrincipal, e);
+        }
+    }
+
+    /**
+     * Si la cuenta todavía no tiene rostro, se ofrece registrarlo para usarlo
+     * como segundo factor en los próximos accesos. Es opcional: el usuario
+     * puede omitirlo y entrar con un solo factor.
+     */
+    private void ofrecerRegistroRostro(Window ventana, Usuario usuario) {
+        if (usuarioController.tieneRostroRegistrado(usuario.getIdUsuario())) return;
+        if (Dialogos.confirmar(ventana,
+                "Su cuenta todavía no tiene un rostro registrado.\n"
+                        + "¿Desea registrarlo ahora para usarlo como segundo factor de acceso?",
+                "Registro facial")) {
+            DialogoRegistroRostro.abrir(ventana, usuarioController, usuario);
         }
     }
 

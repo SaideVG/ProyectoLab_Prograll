@@ -239,6 +239,11 @@ class RegistroUsuarioForm {
                 Dialogos.informar(dialogo,
                         "Usuario registrado correctamente. Ya puede iniciar sesión.",
                         "Registro de usuarios");
+                if (Dialogos.confirmar(dialogo,
+                        "¿Desea registrar el rostro de " + usuario.getUsuario() + " ahora?",
+                        "Registro facial")) {
+                    DialogoRegistroRostro.abrir(dialogo, usuarioController, usuario);
+                }
                 dialogo.dispose();
             } else {
                 Dialogos.error(dialogo, "No se pudo registrar el usuario.");

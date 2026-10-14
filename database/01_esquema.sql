@@ -490,6 +490,8 @@ GO
        EQUIPO_ENVIADO_MANTENIMIENTO
        MANTENIMIENTO_FINALIZADO
        USUARIO_DESACTIVADO
+       ROSTRO_REGISTRADO
+       ROSTRO_ELIMINADO
    ============================================================ */
 
 CREATE TABLE Auditoria
@@ -514,6 +516,35 @@ CREATE TABLE Auditoria
         PRIMARY KEY (id_auditoria),
 
     CONSTRAINT FK_Auditoria_Usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES Usuario(id_usuario)
+);
+GO
+
+
+/* ============================================================
+   12. ROSTRO DE USUARIO (RN-02)
+   ------------------------------------------------------------
+   Firma facial del usuario para la verificación 1:1 del segundo
+   factor del login. La calcula SFace (OpenCV) y son 128 números
+   float (4 bytes cada uno = 512 bytes por usuario).
+   Relación 1:1 con Usuario: una fila por usuario.
+   ============================================================ */
+
+CREATE TABLE UsuarioRostro
+(
+    id_usuario INT NOT NULL,
+
+    vector_rostro VARBINARY(512) NOT NULL,
+
+    fecha_registro DATETIME2(0) NOT NULL
+        CONSTRAINT DF_UsuarioRostro_FechaRegistro
+        DEFAULT SYSDATETIME(),
+
+    CONSTRAINT PK_UsuarioRostro
+        PRIMARY KEY (id_usuario),
+
+    CONSTRAINT FK_UsuarioRostro_Usuario
         FOREIGN KEY (id_usuario)
         REFERENCES Usuario(id_usuario)
 );
