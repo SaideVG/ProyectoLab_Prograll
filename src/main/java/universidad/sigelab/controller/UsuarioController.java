@@ -3,6 +3,8 @@ package universidad.sigelab.controller;
 import universidad.sigelab.enums.EstadoRegistro;
 import universidad.sigelab.model.Rol;
 import universidad.sigelab.model.Usuario;
+import universidad.sigelab.service.RecuperacionService;
+import universidad.sigelab.service.SolicitudRecuperacion;
 import universidad.sigelab.service.UsuarioService;
 import universidad.sigelab.service.ValidadorRostro;
 import universidad.sigelab.util.Sesion;
@@ -12,8 +14,15 @@ import java.util.Optional;
 
 public class UsuarioController {
     private final UsuarioService service;
-    public UsuarioController() { this(new UsuarioService()); }
-    public UsuarioController(UsuarioService service) { this.service = service; }
+    private final RecuperacionService recuperacionService;
+
+    public UsuarioController() { this(new UsuarioService(), new RecuperacionService()); }
+    public UsuarioController(UsuarioService service) { this(service, new RecuperacionService()); }
+
+    public UsuarioController(UsuarioService service, RecuperacionService recuperacionService) {
+        this.service = service;
+        this.recuperacionService = recuperacionService;
+    }
 
     /**
      * Inicia sesión con los dos factores. El {@link ValidadorRostro} lo aporta la
@@ -31,6 +40,20 @@ public class UsuarioController {
     public void eliminarRostro(Usuario usuario) { service.eliminarRostro(usuario); }
 
     public void cerrarSesion() { Sesion.cerrar(); }
+
+    /* ========================================================
+       RECUPERACIÓN DE CONTRASEÑA (código de un solo uso)
+       ======================================================== */
+
+    public boolean correoConfigurado() { return recuperacionService.correoConfigurado(); }
+
+    public SolicitudRecuperacion solicitarCodigoRecuperacion(String usuarioOCorreo) {
+        return recuperacionService.solicitar(usuarioOCorreo);
+    }
+
+    public void restablecerPassword(String usuarioOCorreo, String codigo, String nuevaPassword) {
+        recuperacionService.restablecer(usuarioOCorreo, codigo, nuevaPassword);
+    }
 
     public boolean guardar(Usuario usuario, String password) { return service.guardar(usuario, password); }
     public boolean registrar(Usuario usuario, String password) { return service.registrar(usuario, password); }

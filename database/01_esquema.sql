@@ -492,6 +492,9 @@ GO
        USUARIO_DESACTIVADO
        ROSTRO_REGISTRADO
        ROSTRO_ELIMINADO
+       RECUPERACION_SOLICITADA
+       RECUPERACION_FALLIDA
+       PASSWORD_RESTABLECIDA
    ============================================================ */
 
 CREATE TABLE Auditoria
@@ -545,6 +548,44 @@ CREATE TABLE UsuarioRostro
         PRIMARY KEY (id_usuario),
 
     CONSTRAINT FK_UsuarioRostro_Usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES Usuario(id_usuario)
+);
+GO
+
+
+/* ============================================================
+   13. RECUPERACIÓN DE CONTRASEÑA (código de un solo uso)
+   ------------------------------------------------------------
+   Código de verificación que se envía por correo cuando el
+   usuario olvida su contraseña. Solo se guarda el hash SHA-256
+   (32 bytes): el código en claro nunca se almacena.
+   Cada fila vence (fecha_expiracion) y sirve una sola vez
+   (usado). Al pedir un código nuevo se anulan los pendientes.
+   ============================================================ */
+
+CREATE TABLE TokenRecuperacion
+(
+    id_token INT IDENTITY(1,1) NOT NULL,
+
+    id_usuario INT NOT NULL,
+
+    codigo_hash VARBINARY(32) NOT NULL,
+
+    fecha_creacion DATETIME2(0) NOT NULL
+        CONSTRAINT DF_TokenRecuperacion_FechaCreacion
+        DEFAULT SYSDATETIME(),
+
+    fecha_expiracion DATETIME2(0) NOT NULL,
+
+    usado BIT NOT NULL
+        CONSTRAINT DF_TokenRecuperacion_Usado
+        DEFAULT 0,
+
+    CONSTRAINT PK_TokenRecuperacion
+        PRIMARY KEY (id_token),
+
+    CONSTRAINT FK_TokenRecuperacion_Usuario
         FOREIGN KEY (id_usuario)
         REFERENCES Usuario(id_usuario)
 );
