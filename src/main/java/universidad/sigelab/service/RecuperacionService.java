@@ -73,11 +73,10 @@ public class RecuperacionService {
                         cuerpo(codigo));
                 return new SolicitudRecuperacion(true, null, correo);
             } catch (RuntimeException e) {
-                // El correo no salió: se muestra el código en pantalla para no bloquear al usuario.
-                return new SolicitudRecuperacion(false, codigo, correo);
+                throw new BusinessException("No se pudo enviar el correo electrónico. Revise la configuración SMTP.", e);
             }
         }
-        return new SolicitudRecuperacion(false, codigo, correo);
+        throw new BusinessException("El servidor de correo no está configurado. Configure SIGELAB_SMTP_* o solicite apoyo al administrador.");
     }
 
     /** Verifica el código y, si es válido, guarda la nueva contraseña en una sola transacción. */
