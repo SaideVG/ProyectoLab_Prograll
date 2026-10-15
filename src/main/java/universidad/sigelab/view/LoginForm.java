@@ -243,10 +243,8 @@ public class LoginForm {
     }
 
     private void recordarClave() {
-        Dialogos.informar(panelPrincipal,
-                "La recuperación de contraseña la gestiona el Departamento de Laboratorios.\n"
-                        + "Comuníquese con el administrador del sistema.",
-                "Recuperar contraseña");
+        Window duenio = SwingUtilities.getWindowAncestor(panelPrincipal);
+        DialogoRecuperacion.abrir(duenio, usuarioController);
     }
 
     /** Cierra únicamente la ventana del login. */

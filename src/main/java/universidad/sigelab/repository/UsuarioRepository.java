@@ -42,6 +42,11 @@ public class UsuarioRepository {
         return JdbcSupport.buscar("buscar el usuario", SELECT + "WHERE u.usuario = ?", UsuarioRepository::mapear, nombreUsuario);
     }
 
+    public Optional<Usuario> buscarPorCorreo(String correo) {
+        return JdbcSupport.buscar("buscar el usuario por correo", SELECT + "WHERE u.correo = ?",
+                UsuarioRepository::mapear, correo);
+    }
+
     public boolean actualizar(Usuario usuario) {
         String sql = "UPDATE Usuario SET nombre = ?, apellido = ?, usuario = ?, password_hash = ?, correo = ?, " +
                 "id_rol = ?, estado = ? WHERE id_usuario = ?";
