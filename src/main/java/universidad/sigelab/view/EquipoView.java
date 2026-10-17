@@ -2,13 +2,17 @@ package universidad.sigelab.view;
 
 import universidad.sigelab.controller.EquipoController;
 import universidad.sigelab.controller.LaboratorioController;
+import universidad.sigelab.controller.QrController;
 import universidad.sigelab.controller.TipoEquipoController;
+import universidad.sigelab.model.CodigoQr;
 import universidad.sigelab.model.Equipo;
 import universidad.sigelab.model.Laboratorio;
 import universidad.sigelab.model.TipoEquipo;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +35,7 @@ public class EquipoView {
     private JButton btnNuevo;
     private JButton btnGuardar;
     private JButton btnActualizar;
+    private JButton btnGenerarQr;
 
     private JTextField txtBuscar;
     private JButton btnBuscar;
@@ -42,17 +47,19 @@ public class EquipoView {
     private final EquipoController equipoController;
     private final TipoEquipoController tipoEquipoController;
     private final LaboratorioController laboratorioController;
+    private final QrController qrController;
 
 
     public EquipoView() {
-        this(new EquipoController(), new TipoEquipoController(), new LaboratorioController());
+        this(new EquipoController(), new TipoEquipoController(), new LaboratorioController(), new QrController());
     }
 
     public EquipoView(EquipoController equipoController, TipoEquipoController tipoEquipoController,
-                      LaboratorioController laboratorioController) {
+                      LaboratorioController laboratorioController, QrController qrController) {
         this.equipoController = equipoController;
         this.tipoEquipoController = tipoEquipoController;
         this.laboratorioController = laboratorioController;
+        this.qrController = qrController;
 
         configurarFormulario();
         configurarEventos();
@@ -83,6 +90,7 @@ public class EquipoView {
         btnNuevo.addActionListener(e -> nuevo());
         btnGuardar.addActionListener(e -> guardar());
         btnActualizar.addActionListener(e -> actualizar());
+        btnGenerarQr.addActionListener(e -> generarQr());
         btnBuscar.addActionListener(e -> buscar());
         btnSalir.addActionListener(e -> salir());
 
@@ -261,6 +269,7 @@ public class EquipoView {
         // Se está trabajando con un registro existente.
         btnGuardar.setEnabled(false);
         btnActualizar.setEnabled(true);
+        btnGenerarQr.setEnabled(true);
     }
 
     /*
@@ -274,6 +283,53 @@ public class EquipoView {
         }
         if (!estaEnLaLista) combo.addItem(valor);
         combo.setSelectedItem(valor);
+    }
+
+
+    /*
+     * ========================================================
+     * CÓDIGO QR
+     *
+     * El QR representa únicamente el código de inventario del
+     * equipo seleccionado. Sirve para identificarlo después en
+     * la pantalla de Préstamos sin escribir el código.
+     * ========================================================
+     */
+    private void generarQr() {
+        if (txtId.getText().isBlank()) {
+            Dialogos.advertir(panelPrincipal, "Debe seleccionar un equipo.");
+            return;
+        }
+
+        try {
+            // El Controller toma el código guardado en la base, no el que esté escrito en pantalla.
+            CodigoQr qr = qrController.generarParaEquipo(Integer.parseInt(txtId.getText()));
+
+            String[] opciones = {"Guardar como PNG", "Cerrar"};
+            int opcion = JOptionPane.showOptionDialog(panelPrincipal, new JLabel(new ImageIcon(qr.imagen())),
+                    "Código QR de " + qr.codigoInventario(), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+                    null, opciones, opciones[0]);
+
+            if (opcion == 0) guardarQr(qr);
+        } catch (Exception e) {
+            Dialogos.error(panelPrincipal, e);
+        }
+    }
+
+    /*
+     * Se propone guardar la imagen con el código como nombre (CAM-001.png)
+     * dentro de la carpeta de imágenes QR, pero el usuario puede elegir otra ubicación.
+     */
+    private void guardarQr(CodigoQr qr) {
+        JFileChooser selector = new JFileChooser(qrController.carpetaDeImagenes());
+        selector.setDialogTitle("Guardar código QR");
+        selector.setFileFilter(new FileNameExtensionFilter("Imagen PNG", "png"));
+        selector.setSelectedFile(new File(qrController.carpetaDeImagenes(), qr.codigoInventario() + ".png"));
+
+        if (selector.showSaveDialog(panelPrincipal) != JFileChooser.APPROVE_OPTION) return;
+
+        File guardado = qrController.guardar(qr, selector.getSelectedFile());
+        Dialogos.informar(panelPrincipal, "Código QR guardado en:\n" + guardado.getAbsolutePath(), "Código QR");
     }
 
     private void seleccionarFilaPorId(int idEquipo) {
@@ -316,6 +372,9 @@ public class EquipoView {
 
         btnGuardar.setEnabled(true);
         btnActualizar.setEnabled(false);
+
+        // El QR se genera a partir de un equipo ya guardado.
+        btnGenerarQr.setEnabled(false);
     }
 
     private void salir() {

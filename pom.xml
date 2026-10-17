@@ -27,6 +27,33 @@
             <version>0.4</version>
         </dependency>
 
+        <!-- Códigos QR: core genera y lee; javase convierte entre QR e imágenes de Java -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
+        <!-- Cámara web: captura las imágenes en las que ZXing busca el QR -->
+        <dependency>
+            <groupId>com.github.sarxos</groupId>
+            <artifactId>webcam-capture</artifactId>
+            <version>0.3.12</version>
+        </dependency>
+
+        <!-- Evita que la librería de la cámara imprima avisos de registro (logs) en la consola -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
     </dependencies>
 
     <build>
