@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="universidad.sigelab.view.LectorQrCamaraView">
+  <grid id="27dc6" binding="panelPrincipal" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="15" left="20" bottom="15" right="20" />
+    <constraints>
+      <xy x="20" y="20" width="700" height="640" />
+    </constraints>
+    <properties />
+    <border type="none" />
+    <children>
+      <component id="2532a" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Cámara" />
+        </properties>
+      </component>
+      <component id="2551d" class="javax.swing.JComboBox" binding="cboCamara">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties />
+      </component>
+      <component id="25710" class="javax.swing.JLabel" binding="lblVideo">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="640" height="480" />
+          </grid>
+        </constraints>
+        <properties>
+          <text value="Encendiendo la cámara..." />
+        </properties>
+      </component>
+      <component id="25903" class="javax.swing.JLabel" binding="lblEstado">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Coloque el código QR frente a la cámara." />
+        </properties>
+      </component>
+      <component id="25af6" class="javax.swing.JButton" binding="btnCancelar">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <text value="Cancelar" />
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
