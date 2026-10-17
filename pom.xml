@@ -54,6 +54,43 @@
             <version>1.7.36</version>
         </dependency>
 
+        <!--
+            Jakarta Mail para enviar por correo el código de recuperación de
+            contraseña. La configuración SMTP se toma de variables de entorno
+            (ver CorreoService); si no hay SMTP, el sistema muestra el código
+            en pantalla para que el flujo nunca se caiga.
+        -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+
+        <!--
+            Runtime del GUI Designer de IntelliJ.
+            Los formularios (.form) generan código que usa
+            com.intellij.uiDesigner.core.GridLayoutManager; sin este
+            jar las clases fallarían con NoClassDefFoundError.
+        -->
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
+
+        <!--
+            OpenCV para el reconocimiento facial (RN-02).
+            El paquete de org.openpnp incluye las librerías nativas de
+            Windows, Linux y macOS, y las clases FaceDetectorYN (detección
+            de rostro, modelo YuNet) y FaceRecognizerSF (reconocimiento,
+            modelo SFace) del módulo objdetect.
+        -->
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.9.0-0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

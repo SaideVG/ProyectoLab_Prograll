@@ -490,6 +490,11 @@ GO
        EQUIPO_ENVIADO_MANTENIMIENTO
        MANTENIMIENTO_FINALIZADO
        USUARIO_DESACTIVADO
+       ROSTRO_REGISTRADO
+       ROSTRO_ELIMINADO
+       RECUPERACION_SOLICITADA
+       RECUPERACION_FALLIDA
+       PASSWORD_RESTABLECIDA
    ============================================================ */
 
 CREATE TABLE Auditoria
@@ -514,6 +519,73 @@ CREATE TABLE Auditoria
         PRIMARY KEY (id_auditoria),
 
     CONSTRAINT FK_Auditoria_Usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES Usuario(id_usuario)
+);
+GO
+
+
+/* ============================================================
+   12. ROSTRO DE USUARIO (RN-02)
+   ------------------------------------------------------------
+   Firma facial del usuario para la verificación 1:1 del segundo
+   factor del login. La calcula SFace (OpenCV) y son 128 números
+   float (4 bytes cada uno = 512 bytes por usuario).
+   Relación 1:1 con Usuario: una fila por usuario.
+   ============================================================ */
+
+CREATE TABLE UsuarioRostro
+(
+    id_usuario INT NOT NULL,
+
+    vector_rostro VARBINARY(512) NOT NULL,
+
+    fecha_registro DATETIME2(0) NOT NULL
+        CONSTRAINT DF_UsuarioRostro_FechaRegistro
+        DEFAULT SYSDATETIME(),
+
+    CONSTRAINT PK_UsuarioRostro
+        PRIMARY KEY (id_usuario),
+
+    CONSTRAINT FK_UsuarioRostro_Usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES Usuario(id_usuario)
+);
+GO
+
+
+/* ============================================================
+   13. RECUPERACIÓN DE CONTRASEÑA (código de un solo uso)
+   ------------------------------------------------------------
+   Código de verificación que se envía por correo cuando el
+   usuario olvida su contraseña. Solo se guarda el hash SHA-256
+   (32 bytes): el código en claro nunca se almacena.
+   Cada fila vence (fecha_expiracion) y sirve una sola vez
+   (usado). Al pedir un código nuevo se anulan los pendientes.
+   ============================================================ */
+
+CREATE TABLE TokenRecuperacion
+(
+    id_token INT IDENTITY(1,1) NOT NULL,
+
+    id_usuario INT NOT NULL,
+
+    codigo_hash VARBINARY(32) NOT NULL,
+
+    fecha_creacion DATETIME2(0) NOT NULL
+        CONSTRAINT DF_TokenRecuperacion_FechaCreacion
+        DEFAULT SYSDATETIME(),
+
+    fecha_expiracion DATETIME2(0) NOT NULL,
+
+    usado BIT NOT NULL
+        CONSTRAINT DF_TokenRecuperacion_Usado
+        DEFAULT 0,
+
+    CONSTRAINT PK_TokenRecuperacion
+        PRIMARY KEY (id_token),
+
+    CONSTRAINT FK_TokenRecuperacion_Usuario
         FOREIGN KEY (id_usuario)
         REFERENCES Usuario(id_usuario)
 );

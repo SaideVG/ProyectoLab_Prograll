@@ -4,6 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import universidad.sigelab.enums.AccionAuditoria;
 import universidad.sigelab.enums.EstadoRegistro;
 import universidad.sigelab.enums.Modulo;
+import universidad.sigelab.enums.RolUsuario;
 import universidad.sigelab.model.Rol;
 import universidad.sigelab.model.Usuario;
 import universidad.sigelab.repository.RolRepository;
@@ -33,11 +34,22 @@ public class UsuarioService {
     private final UsuarioRepository repository;
     private final RolRepository rolRepository;
     private final AuditoriaService auditoriaService;
-    public UsuarioService() { this(new UsuarioRepository(), new RolRepository(), new AuditoriaService()); }
+    private final UsuarioRostroService rostroService;
+
+    public UsuarioService() {
+        this(new UsuarioRepository(), new RolRepository(), new AuditoriaService(), new UsuarioRostroService());
+    }
+
     public UsuarioService(UsuarioRepository repository, RolRepository rolRepository, AuditoriaService auditoriaService) {
+        this(repository, rolRepository, auditoriaService, new UsuarioRostroService());
+    }
+
+    public UsuarioService(UsuarioRepository repository, RolRepository rolRepository, AuditoriaService auditoriaService,
+                          UsuarioRostroService rostroService) {
         this.repository = repository;
         this.rolRepository = rolRepository;
         this.auditoriaService = auditoriaService;
+        this.rostroService = rostroService;
     }
 
     /*
@@ -47,11 +59,34 @@ public class UsuarioService {
      */
 
     /**
-     * Primer factor del login: usuario, contraseña y estado.
-     * La validación facial (RN-02) todavía no existe; cuando se integre debe aprobarse
-     * después de este método y antes de considerar el login como exitoso.
+     * Inicio de sesión completo: credenciales y estado (RN-01) y, si el usuario
+     * tiene un rostro registrado, la validación facial (RN-02).
+     *
+     * El validador es la pantalla de la cámara: recibe al usuario y su firma
+     * facial guardada, y devuelve si el rostro capturado coincide. Si todavía no
+     * hay rostro registrado, el login queda en un solo factor.
      */
-    public Usuario autenticar(String nombreUsuario, String password) {
+    public Usuario autenticar(String nombreUsuario, String password, ValidadorRostro validadorRostro) {
+        Usuario usuario = verificarCredenciales(nombreUsuario, password);
+
+        if (rostroService.tieneRostro(usuario.getIdUsuario())) {
+            float[] rostroRegistrado = rostroService.buscar(usuario.getIdUsuario()).orElse(null);
+            boolean aprobado = validadorRostro != null && validadorRostro.validar(usuario, rostroRegistrado);
+            if (!aprobado) {
+                registrarLoginFallido(usuario, "Validación facial fallida.");
+                throw new BusinessException("No se pudo validar su rostro. Vuelva a intentarlo o contacte al administrador.");
+            }
+        }
+
+        registrarAccesoExitoso(usuario);
+        return usuario;
+    }
+
+    /**
+     * Primer factor del login: usuario, contraseña y estado (RN-01).
+     * No registra el acceso como exitoso; de eso se encarga {@link #autenticar}.
+     */
+    public Usuario verificarCredenciales(String nombreUsuario, String password) {
         if (nombreUsuario == null || nombreUsuario.isBlank()) throw new BusinessException("Ingrese su usuario.");
         if (password == null || password.isEmpty()) throw new BusinessException("Ingrese su contraseña.");
 
@@ -74,9 +109,24 @@ public class UsuarioService {
             throw new BusinessException("El usuario está INACTIVO. Contacte al administrador.");
         }
 
+        return usuario;
+    }
+
+    public void registrarAccesoExitoso(Usuario usuario) {
         auditoriaService.registrar(usuario, AccionAuditoria.LOGIN_EXITOSO, ENTIDAD, usuario.getIdUsuario(),
                 "Inicio de sesión.");
-        return usuario;
+    }
+
+    public boolean tieneRostroRegistrado(int idUsuario) {
+        return rostroService.tieneRostro(idUsuario);
+    }
+
+    public void registrarRostro(Usuario usuario, float[] vector) {
+        rostroService.registrar(usuario, vector);
+    }
+
+    public void eliminarRostro(Usuario usuario) {
+        rostroService.eliminar(usuario);
     }
 
     /*
@@ -87,6 +137,27 @@ public class UsuarioService {
 
     public boolean guardar(Usuario usuario, String password) {
         Sesion.exigirAcceso(Modulo.USUARIOS);
+        validar(usuario);
+        exigirDatosUnicos(usuario, 0);
+        usuario.setPasswordHash(BCrypt.hashpw(passwordValida(password), BCrypt.gensalt()));
+        usuario.setEstado(EstadoRegistro.ACTIVO);
+        return repository.guardar(usuario);
+    }
+
+    /**
+     * Autorregistro desde la pantalla de login.
+     *
+     * A diferencia de guardar(), no exige una sesión iniciada (todavía no hay
+     * usuario autenticado) y asigna siempre el rol DOCENTE, que es el de menor
+     * privilegio, para que desde la pantalla pública nadie pueda crearse un ADMIN.
+     */
+    public boolean registrar(Usuario usuario, String password) {
+        Rol docente = rolRepository.listar().stream()
+                .filter(rol -> rol.getNombre() == RolUsuario.DOCENTE)
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("No existe el rol DOCENTE en la base de datos."));
+
+        usuario.setRol(docente);
         validar(usuario);
         exigirDatosUnicos(usuario, 0);
         usuario.setPasswordHash(BCrypt.hashpw(passwordValida(password), BCrypt.gensalt()));
