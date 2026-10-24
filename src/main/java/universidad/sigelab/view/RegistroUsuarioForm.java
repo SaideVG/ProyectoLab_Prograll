@@ -17,6 +17,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -26,16 +27,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Window;
 
-/**
- * Formulario para dar de alta un usuario nuevo.
- *
- * Se abre desde el botón "Registro nuevo" del login y usa la misma paleta
- * ({@link Tema}) y los mismos componentes redondeados, para que las dos
- * pantallas se vean consistentes.
- */
 class RegistroUsuarioForm {
 
-    private static final int ANCHO_CAMPO = 300;
+    private static final int ANCHO_CAMPO = 320;
 
     private final JDialog dialogo;
     private final UsuarioController usuarioController;
@@ -50,7 +44,6 @@ class RegistroUsuarioForm {
 
     private BotonRedondeado btnRegistrar;
 
-    /** Abre el formulario de forma modal sobre la ventana indicada. */
     static void abrir(Window duenio, UsuarioController usuarioController) {
         new RegistroUsuarioForm(duenio, usuarioController).dialogo.setVisible(true);
     }
@@ -62,7 +55,6 @@ class RegistroUsuarioForm {
         dialogo.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialogo.setContentPane(construirContenido());
         dialogo.setResizable(false);
-        // pack() ajusta el diálogo al contenido para que no se corte nada.
         dialogo.pack();
         dialogo.setLocationRelativeTo(duenio);
         dialogo.getRootPane().setDefaultButton(btnRegistrar);
@@ -71,25 +63,29 @@ class RegistroUsuarioForm {
         SwingUtilities.invokeLater(() -> txtNombre.requestFocusInWindow());
     }
 
-    /*
-     * ========================================================
-     * INTERFAZ
-     * ========================================================
-     */
-
     private JPanel construirContenido() {
         JPanel fondo = new JPanel(new GridBagLayout());
-        fondo.setBackground(Tema.FONDO);
-        // Margen alrededor de la tarjeta para que nunca toque los bordes de la ventana.
+        fondo.setBackground(new Color(0x06, 0x0B, 0x14));
         fondo.setBorder(new EmptyBorder(22, 22, 22, 22));
 
-        PanelRedondeado tarjeta = new PanelRedondeado();
-        tarjeta.setLayout(new BorderLayout());
+        JPanel tarjeta = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0x0A, 0x12, 0x24));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.setColor(Tema.BORDE);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.dispose();
+            }
+        };
+        tarjeta.setOpaque(false);
         tarjeta.setBorder(new EmptyBorder(28, 36, 16, 36));
 
         JLabel titulo = new JLabel("Registro de usuarios", SwingConstants.CENTER);
         titulo.setFont(Tema.titulo());
-        titulo.setForeground(Tema.PRIMARIO);
+        titulo.setForeground(Color.WHITE);
 
         JLabel subtitulo = new JLabel("Complete los datos para crear una cuenta", SwingConstants.CENTER);
         subtitulo.setFont(Tema.subtitulo());
@@ -109,8 +105,8 @@ class RegistroUsuarioForm {
         agregarFila(formulario, 1, "Apellido", txtApellido, "Ej. Pérez");
         agregarFila(formulario, 2, "Nombre de usuario", txtUsuario, "jperez_lab");
         agregarFila(formulario, 3, "Correo", txtCorreo, "usuario@universidad.edu");
-        agregarFila(formulario, 4, "Contraseña", txtPassword, null);
-        agregarFila(formulario, 5, "Confirmar contraseña", txtConfirmar, null);
+        agregarFila(formulario, 4, "Contraseña", txtPassword, "••••••••••••");
+        agregarFila(formulario, 5, "Confirmar contraseña", txtConfirmar, "••••••••••••");
 
         JLabel obligatorios = new JLabel("Todos los campos son obligatorios", SwingConstants.RIGHT);
         obligatorios.setFont(Tema.etiquetaMedia());
@@ -147,9 +143,9 @@ class RegistroUsuarioForm {
         contenido.add(titulo);
         contenido.add(Box.createVerticalStrut(4));
         contenido.add(subtitulo);
-        contenido.add(Box.createVerticalStrut(26));
+        contenido.add(Box.createVerticalStrut(22));
         contenido.add(formulario);
-        contenido.add(Box.createVerticalStrut(14));
+        contenido.add(Box.createVerticalStrut(12));
         contenido.add(obligatorios);
         contenido.add(Box.createVerticalStrut(16));
         contenido.add(botones);
@@ -182,11 +178,11 @@ class RegistroUsuarioForm {
         texto.gridx = 0;
         texto.gridy = fila;
         texto.anchor = GridBagConstraints.LINE_END;
-        texto.insets = new Insets(7, 0, 7, 14);
+        texto.insets = new Insets(6, 0, 6, 14);
 
         JLabel etiqueta = new JLabel(textoEtiqueta);
         etiqueta.setFont(Tema.etiquetaMedia());
-        etiqueta.setForeground(Tema.ETIQUETA);
+        etiqueta.setForeground(Color.WHITE);
         panel.add(etiqueta, texto);
 
         GridBagConstraints contenedor = new GridBagConstraints();
@@ -194,29 +190,22 @@ class RegistroUsuarioForm {
         contenedor.gridy = fila;
         contenedor.weightx = 1;
         contenedor.fill = GridBagConstraints.HORIZONTAL;
-        contenedor.insets = new Insets(7, 0, 7, 0);
+        contenedor.insets = new Insets(6, 0, 6, 0);
 
         if (campo instanceof CampoTexto campoTexto) {
             campoTexto.setAnchoPreferido(ANCHO_CAMPO);
-            campoTexto.setPlaceholder(placeholder);
+            if (placeholder != null) campoTexto.setPlaceholder(placeholder);
         } else if (campo instanceof CampoPassword campoPassword) {
             campoPassword.setAnchoPreferido(ANCHO_CAMPO);
-            campoPassword.setPlaceholder(placeholder);
+            if (placeholder != null) campoPassword.setPlaceholder(placeholder);
         }
         panel.add(campo, contenedor);
     }
 
-    /** Hace que un componente ocupe todo el ancho disponible dentro de la tarjeta. */
     private void anchoCompleto(JComponent componente) {
         componente.setAlignmentX(Component.LEFT_ALIGNMENT);
         componente.setMaximumSize(new Dimension(Integer.MAX_VALUE, componente.getPreferredSize().height));
     }
-
-    /*
-     * ========================================================
-     * ACCIONES
-     * ========================================================
-     */
 
     private void registrar() {
         try {

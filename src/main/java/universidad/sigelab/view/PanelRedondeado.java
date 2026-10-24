@@ -7,11 +7,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-/** Panel blanco con esquinas redondeadas; se usa como tarjeta contenedora. */
+/** Panel oscuro con esquinas redondeadas; se usa como tarjeta contenedora. */
 class PanelRedondeado extends JPanel {
 
-    private int radio = 24;
-    private Color colorFondo = Tema.SUPERFICIE;
+    private int radio = 20;
+    private Color colorFondo = new Color(0x0A, 0x12, 0x24);
     private Color colorBorde = Tema.BORDE;
 
     PanelRedondeado() {
@@ -41,8 +41,10 @@ class PanelRedondeado extends JPanel {
         int ancho = getWidth() - 1;
         int alto = getHeight() - 1;
 
-        g2.setColor(colorFondo);
-        g2.fillRoundRect(0, 0, ancho, alto, radio, radio);
+        if (colorFondo != null) {
+            g2.setColor(colorFondo);
+            g2.fillRoundRect(0, 0, ancho, alto, radio, radio);
+        }
 
         if (colorBorde != null) {
             g2.setColor(colorBorde);

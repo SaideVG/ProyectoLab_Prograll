@@ -15,11 +15,15 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -89,16 +93,27 @@ class DialogoRegistroRostro {
 
     private JPanel construirContenido() {
         JPanel fondo = new JPanel(new GridBagLayout());
-        fondo.setBackground(Tema.FONDO);
+        fondo.setBackground(new Color(0x06, 0x0B, 0x14));
         fondo.setBorder(new EmptyBorder(22, 22, 22, 22));
 
-        PanelRedondeado tarjeta = new PanelRedondeado();
-        tarjeta.setLayout(new BorderLayout());
+        JPanel tarjeta = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0x0A, 0x12, 0x24));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.setColor(Tema.BORDE);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.dispose();
+            }
+        };
+        tarjeta.setOpaque(false);
         tarjeta.setBorder(new EmptyBorder(24, 30, 20, 30));
 
         JLabel titulo = new JLabel("Registro facial", SwingConstants.CENTER);
         titulo.setFont(Tema.titulo().deriveFont(23f));
-        titulo.setForeground(Tema.PRIMARIO);
+        titulo.setForeground(Color.WHITE);
 
         JLabel subtitulo = new JLabel(
                 "<html><div style='text-align:center;'>"

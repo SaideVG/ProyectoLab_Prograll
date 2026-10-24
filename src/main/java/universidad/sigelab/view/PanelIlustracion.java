@@ -1,129 +1,134 @@
 package universidad.sigelab.view;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.net.URL;
 
-/**
- * Panel decorativo que acompaña al formulario de login.
- *
- * Pinta un degradado azul muy claro con formas suaves y un matraz (frasco de
- * laboratorio) dentro de una tarjeta blanca, para dar identidad visual a la
- * pantalla sin depender de imágenes externas.
- */
-class PanelIlustracion extends JPanel {
+public class PanelIlustracion extends JPanel {
 
-    PanelIlustracion() {
-        setOpaque(true);
-        setBackground(new Color(0xF4F8FD));
-        setPreferredSize(new Dimension(520, 620));
+    private final ImageIcon logoNube;
+
+    public PanelIlustracion() {
+        setOpaque(false);
+        this.logoNube = cargarLogoNube();
+    }
+
+    private ImageIcon cargarLogoNube() {
+        String[] rutas = {
+                "/images/logo_nube.png.png",
+                "/images/logo_nube.png",
+                "/images/logo_sigelab.png.png",
+                "/images/logo_sigelab.png"
+        };
+        for (String r : rutas) {
+            URL url = getClass().getResource(r);
+            if (url != null) return new ImageIcon(url);
+        }
+        File f1 = new File("src/main/resources/images/logo_nube.png.png");
+        if (f1.exists()) return new ImageIcon(f1.getAbsolutePath());
+        File f2 = new File("src/main/resources/images/logo_nube.png");
+        if (f2.exists()) return new ImageIcon(f2.getAbsolutePath());
+        return null;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-        int w = getWidth();
-        int h = getHeight();
+        int ancho = getWidth();
+        int alto = getHeight();
+        float alpha = LoginForm.getAlphaGlobal();
 
-        // Degradado vertical muy suave.
-        g2.setPaint(new GradientPaint(0, 0, new Color(0xF8FBFF), 0, h, new Color(0xE3ECFB)));
-        g2.fillRect(0, 0, w, h);
+        // Fondo columna derecha
+        g2.setColor(new Color(0x06, 0x0B, 0x14));
+        g2.fillRect(0, 0, ancho, alto);
 
-        // Círculos decorativos translúcidos.
-        traslucido(g2, new Color(0x1D5BD8), 38);
-        g2.fill(new Ellipse2D.Double(w * 0.62, -h * 0.10, w * 0.55, w * 0.55));
-        traslucido(g2, new Color(0x60A5FA), 50);
-        g2.fill(new Ellipse2D.Double(w * 0.74, h * 0.60, w * 0.30, w * 0.30));
-        traslucido(g2, Color.WHITE, 150);
-        g2.fill(new Ellipse2D.Double(-w * 0.18, h * 0.52, w * 0.62, w * 0.62));
-        traslucido(g2, Color.WHITE, 120);
-        g2.fill(new Ellipse2D.Double(w * 0.06, h * 0.08, w * 0.24, w * 0.24));
+        // Orbes decorativos de fondo
+        g2.setColor(new Color(0x0C, 0x1E, 0x38, 120));
+        g2.fillOval(ancho - 150, -80, 320, 320);
 
-        // Emblema central: tarjeta blanca con el matraz.
-        double lado = Math.min(w, h) * 0.44;
-        double ex = (w - lado) / 2.0;
-        double ey = (h - lado) / 2.0;
+        g2.setColor(new Color(0x0B, 0x22, 0x3E, 100));
+        g2.fillOval(ancho - 220, alto - 240, 380, 380);
 
-        g2.setColor(new Color(255, 255, 255, 240));
-        g2.fill(new RoundRectangle2D.Double(ex, ey, lado, lado, lado * 0.30, lado * 0.30));
-        g2.setColor(new Color(0xD9E4F6));
-        g2.setStroke(new BasicStroke(1.2f));
-        g2.draw(new RoundRectangle2D.Double(ex, ey, lado, lado, lado * 0.30, lado * 0.30));
+        // Tarjeta central flotante
+        int tarjetaW = 340;
+        int tarjetaH = 340;
+        int tarjetaX = (ancho - tarjetaW) / 2;
+        int tarjetaY = (alto - tarjetaH) / 2 - 25;
 
-        dibujarMatraz(g2, w / 2.0, ey + lado / 2.0, lado / 250.0);
+        g2.setColor(new Color(0x0C, 0x16, 0x2A));
+        g2.fillRoundRect(tarjetaX, tarjetaY, tarjetaW, tarjetaH, 20, 20);
+
+        g2.setColor(Tema.BORDE);
+        g2.drawRoundRect(tarjetaX, tarjetaY, tarjetaW, tarjetaH, 20, 20);
+
+        int cx = tarjetaX + (tarjetaW / 2);
+        int cy = tarjetaY + 115;
+
+        // Resplandor neón cian animado en el fondo del logo de la nube
+        for (int r = 100; r > 0; r -= 5) {
+            g2.setColor(new Color(0x00, 0xD8, 0xF6, (int) ((18 / (r / 5.0)) * alpha)));
+            g2.fillOval(cx - r, cy - r, r * 2, r * 2);
+        }
+
+        // Dibujo del Logo de la Nube
+        if (logoNube != null && logoNube.getImage() != null) {
+            int imgW = 230;
+            int imgH = (int) ((double) logoNube.getIconHeight() / logoNube.getIconWidth() * imgW);
+            if (imgH > 150) imgH = 150;
+            int imgX = cx - (imgW / 2);
+            int imgY = cy - (imgH / 2) - 10;
+
+            g2.drawImage(logoNube.getImage(), imgX, imgY, imgW, imgH, this);
+        }
+
+        // BADGE: VINCULADO A SQL SERVER
+        int badgeW = 210;
+        int badgeH = 34;
+        int badgeX = cx - (badgeW / 2);
+        int badgeY = tarjetaY + tarjetaH - 60;
+
+        for (int i = 5; i > 0; i--) {
+            g2.setColor(new Color(0x10, 0xB9, 0x81, (int) ((25 / i) * alpha)));
+            g2.fillRoundRect(badgeX - i, badgeY - i, badgeW + (i * 2), badgeH + (i * 2), 16 + i, 16 + i);
+        }
+
+        g2.setColor(new Color(0x06, 0x1E, 0x22));
+        g2.fillRoundRect(badgeX, badgeY, badgeW, badgeH, 16, 16);
+
+        int alphaBorde = (int) (120 + (135 * alpha));
+        g2.setColor(new Color(0x10, 0xB9, 0x81, Math.min(255, alphaBorde)));
+        g2.drawRoundRect(badgeX, badgeY, badgeW, badgeH, 16, 16);
+
+        // Indicador verde activo
+        g2.setColor(new Color(0x10, 0xB9, 0x81));
+        g2.fillOval(badgeX + 16, badgeY + 12, 10, 10);
+
+        // Texto actualizado
+        g2.setColor(new Color(0x34, 0xD3, 0x99));
+        g2.setFont(Tema.etiqueta());
+        g2.drawString("Vinculado a SQL Server", badgeX + 34, badgeY + 22);
+
+        // Textos del pie
+        String line1 = "Verificación de identidad estudiantil y asignación";
+        String line2 = "de puestos de práctica en tiempo real.";
+        g2.setColor(Tema.TEXTO_SUAVE);
+        g2.setFont(Tema.pie());
+        g2.drawString(line1, cx - (g2.getFontMetrics().stringWidth(line1) / 2), tarjetaY + tarjetaH + 28);
+        g2.drawString(line2, cx - (g2.getFontMetrics().stringWidth(line2) / 2), tarjetaY + tarjetaH + 42);
+
+        String foot = "Dirección General de Laboratorios e Informática";
+        g2.setColor(Tema.PIE);
+        g2.drawString(foot, cx - (g2.getFontMetrics().stringWidth(foot) / 2), alto - 25);
 
         g2.dispose();
-    }
-
-    private void traslucido(Graphics2D g2, Color base, int alpha) {
-        g2.setColor(new Color(base.getRed(), base.getGreen(), base.getBlue(), alpha));
-    }
-
-    /** Dibuja un matraz de laboratorio centrado en (cx, cy). */
-    private void dibujarMatraz(Graphics2D g2, double cx, double cy, double e) {
-        double anchoCuello = 30 * e;
-        double altoCuello = 54 * e;
-        double anchoBase = 104 * e;
-        double altoCuerpo = 104 * e;
-
-        double cima = cy - (altoCuello + altoCuerpo) / 2.0;
-        double cuelloAbajo = cima + altoCuello;
-        double base = cuelloAbajo + altoCuerpo;
-        double nx1 = cx - anchoCuello / 2.0;
-        double nx2 = cx + anchoCuello / 2.0;
-        double bx1 = cx - anchoBase / 2.0;
-        double bx2 = cx + anchoBase / 2.0;
-        double esquina = anchoBase * 0.20;
-
-        Path2D matraz = new Path2D.Double();
-        matraz.moveTo(nx1, cima);
-        matraz.lineTo(nx1, cuelloAbajo);
-        matraz.lineTo(bx1, base - esquina);
-        matraz.quadTo(bx1, base, bx1 + esquina, base);
-        matraz.lineTo(bx2 - esquina, base);
-        matraz.quadTo(bx2, base, bx2, base - esquina);
-        matraz.lineTo(nx2, cuelloAbajo);
-        matraz.lineTo(nx2, cima);
-        matraz.closePath();
-
-        // Fondo del matraz.
-        g2.setColor(new Color(29, 91, 216, 28));
-        g2.fill(matraz);
-
-        // Líquido, recortado a la silueta del matraz.
-        Shape clipAnterior = g2.getClip();
-        g2.clip(matraz);
-        g2.setColor(new Color(29, 91, 216, 130));
-        double nivel = base - altoCuerpo * 0.45;
-        g2.fill(new Rectangle2D.Double(cx - anchoBase, nivel, anchoBase * 2, base - nivel + 4));
-        g2.setClip(clipAnterior);
-
-        // Contorno y boca.
-        g2.setColor(Tema.PRIMARIO);
-        g2.setStroke(new BasicStroke((float) (2.6 * e), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g2.draw(matraz);
-        g2.setStroke(new BasicStroke((float) (3.4 * e), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g2.draw(new Line2D.Double(nx1 - 6 * e, cima, nx2 + 6 * e, cima));
-
-        // Burbujas.
-        g2.setColor(new Color(29, 91, 216, 150));
-        g2.fill(new Ellipse2D.Double(nx1 - 16 * e, cima - 30 * e, 8 * e, 8 * e));
-        g2.fill(new Ellipse2D.Double(nx2 + 8 * e, cima - 48 * e, 6 * e, 6 * e));
-        g2.fill(new Ellipse2D.Double(cx + 22 * e, cima - 22 * e, 5 * e, 5 * e));
     }
 }

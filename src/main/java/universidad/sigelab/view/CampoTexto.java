@@ -2,75 +2,41 @@ package universidad.sigelab.view;
 
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.BasicStroke;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-/**
- * Campo de texto con fondo claro redondeado, borde azul al enfocar y texto de
- * ayuda (placeholder) cuando está vacío.
- */
-class CampoTexto extends JTextField {
+public class CampoTexto extends JTextField {
 
-    private int radio = 12;
-    private int anchoPreferido;
-    private String placeholder;
+    private String placeholder = "";
+    private boolean mouseEncima = false;
+    private final int marginGlow = 4; // Margen de seguridad para evitar recortes en el borde
 
-    CampoTexto(int columnas) {
+    public CampoTexto(int columnas) {
         super(columnas);
-        inicializar();
-    }
-
-    private void inicializar() {
-        setOpaque(false);
+        setForeground(Color.WHITE);
+        setCaretColor(Tema.ETIQUETA);
+        setBackground(Tema.PANEL);
         setFont(Tema.texto());
-        setForeground(Tema.TEXTO);
-        setCaretColor(Tema.PRIMARIO);
-        setSelectionColor(Tema.AZUL_CLARO);
-        setSelectedTextColor(Tema.TEXTO);
-        setBorder(new EmptyBorder(10, 12, 10, 12));
-        addFocusListener(new FocusAdapter() {
+        setOpaque(false);
+        setBorder(new EmptyBorder(10, 42, 10, 14));
+
+        addMouseListener(new MouseAdapter() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void mouseEntered(MouseEvent e) {
+                mouseEncima = true;
                 repaint();
             }
-
             @Override
-            public void focusLost(FocusEvent e) {
+            public void mouseExited(MouseEvent e) {
+                mouseEncima = false;
                 repaint();
             }
         });
-    }
-
-    void setRadio(int radio) {
-        this.radio = radio;
-        repaint();
-    }
-
-    void setPlaceholder(String placeholder) {
-        this.placeholder = placeholder;
-        repaint();
-    }
-
-    /** Fuerza un ancho concreto: JTextField ignora el ancho de setPreferredSize(). */
-    void setAnchoPreferido(int anchoPreferido) {
-        this.anchoPreferido = anchoPreferido;
-        revalidate();
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        Dimension base = super.getPreferredSize();
-        if (anchoPreferido > 0) {
-            base.width = anchoPreferido;
-        }
-        base.height = Math.max(base.height, 44);
-        return base;
     }
 
     @Override
@@ -78,32 +44,59 @@ class CampoTexto extends JTextField {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        boolean enfocado = isFocusOwner();
-        g2.setColor(Tema.SUPERFICIE_ALT);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
+        int m = marginGlow;
+        int x = m;
+        int y = m;
+        int w = getWidth() - (m * 2) - 1;
+        int h = getHeight() - (m * 2) - 1;
+        int radio = 12;
 
-        g2.setColor(enfocado ? Tema.PRIMARIO : Tema.BORDE_CAMPO);
-        g2.setStroke(new BasicStroke(enfocado ? 1.6f : 1f));
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radio, radio);
-        g2.dispose();
+        // 1. Resplandor Neón suave (dentro del área visible)
+        if (mouseEncima || hasFocus()) {
+            for (int i = m; i > 0; i--) {
+                g2.setColor(new Color(0x00, 0xD8, 0xF6, 30 / i));
+                g2.fillRoundRect(x - i, y - i, w + (i * 2), h + (i * 2), radio + (i * 2), radio + (i * 2));
+            }
+        }
+
+        // 2. Fondo del campo
+        g2.setColor(getBackground());
+        g2.fillRoundRect(x, y, w, h, radio, radio);
+
+        // 3. Borde Neón completo
+        g2.setColor((hasFocus() || mouseEncima) ? Tema.ETIQUETA : Tema.BORDE);
+        g2.drawRoundRect(x, y, w, h, radio, radio);
+
+        // 4. Icono de Usuario 👤 bien posicionado
+        g2.setColor(Tema.ETIQUETA);
+        int iconX = x + 14;
+        int iconY = y + (h / 2);
+        g2.drawOval(iconX, iconY - 7, 7, 7);
+        g2.drawArc(iconX - 3, iconY + 1, 13, 9, 0, 180);
 
         super.paintComponent(g);
 
-        if (placeholder != null && getText().isEmpty()) {
-            pintarPlaceholder(g);
+        // Placeholder
+        if (getText().isEmpty() && !hasFocus() && !placeholder.isEmpty()) {
+            g2.setColor(Tema.PLACEHOLDER);
+            g2.setFont(getFont());
+            int textY = (getHeight() - g2.getFontMetrics().getHeight()) / 2 + g2.getFontMetrics().getAscent();
+            g2.drawString(placeholder, 44, textY);
         }
+
+        g2.dispose();
     }
 
-    /** Dibuja el texto de ayuda en gris cuando el campo está vacío. */
-    void pintarPlaceholder(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setFont(getFont());
-        g2.setColor(Tema.PLACEHOLDER);
-        FontMetrics fm = g2.getFontMetrics();
-        int x = getInsets().left;
-        int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
-        g2.drawString(placeholder, x, y);
-        g2.dispose();
+    public void setAnchoPreferido(int ancho) {
+        setPreferredSize(new Dimension(ancho, 46));
+    }
+
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+        repaint();
+    }
+
+    public String getPlaceholder() {
+        return placeholder;
     }
 }

@@ -3,8 +3,31 @@ package universidad.sigelab.view;
 import universidad.sigelab.controller.QrController;
 import universidad.sigelab.util.BusinessException;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicArrowButton;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -14,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Ventana que muestra lo que ve la cámara y espera hasta que aparece un código QR.
- * Solo devuelve el texto del QR: qué hacer con él lo decide la pantalla que la abrió.
  */
 public class LectorQrCamaraView {
 
@@ -22,43 +44,26 @@ public class LectorQrCamaraView {
 
     // Componentes vinculados desde LectorQrCamaraView.form
     private JPanel panelPrincipal;
-
     private JComboBox<String> cboCamara;
     private JLabel lblVideo;
     private JLabel lblEstado;
     private JButton btnCancelar;
 
-    // La View solamente conoce al Controller.
     private final QrController qrController;
 
     private JDialog ventana;
-
-    /*
-     * Cámara elegida en el ComboBox. Es volatile porque la escribe la
-     * pantalla y la lee el hilo que captura las imágenes.
-     */
     private volatile String camaraElegida;
-
-    // Tarea en segundo plano que captura imágenes y busca el QR.
     private SwingWorker<String, BufferedImage> lector;
-
-    // Resultado de la lectura: el código encontrado o el error que la detuvo.
     private String codigoLeido;
     private Exception error;
-
 
     public LectorQrCamaraView(QrController qrController) {
         this.qrController = qrController;
     }
 
-
-    /*
-     * Abre la ventana y no regresa hasta que se cierra.
-     * Devuelve el texto del QR, o null si el usuario canceló.
-     */
     public String leer(Component padre) {
         List<String> camaras = qrController.listarCamaras();
-        if (camaras.isEmpty()) {
+        if (camaras == null || camaras.isEmpty()) {
             throw new BusinessException("No se detectó ninguna cámara en este equipo. " +
                     "Puede leer el QR desde una imagen.");
         }
@@ -73,19 +78,16 @@ public class LectorQrCamaraView {
         ventana.setSize(700, 640);
         ventana.setLocationRelativeTo(padre);
 
-        // Al cerrarse la ventana, por cualquier motivo, se detiene la lectura y se apaga la cámara.
         ventana.addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosed(WindowEvent e) {
-                // false: no se interrumpe al hilo a la mitad; termina su vuelta y apaga la cámara.
-                lector.cancel(false);
+                if (lector != null) {
+                    lector.cancel(false);
+                }
             }
         });
 
         iniciarLectura();
-
-        // La ventana es modal: esta línea espera aquí hasta que se cierre.
         ventana.setVisible(true);
 
         if (error instanceof RuntimeException problema) throw problema;
@@ -93,23 +95,120 @@ public class LectorQrCamaraView {
         return codigoLeido;
     }
 
-
-    /*
-     * Configuración inicial.
-     */
     private void configurarFormulario(List<String> camaras) {
-        for (String camara : camaras) cboCamara.addItem(camara);
+        if (panelPrincipal != null) {
+            panelPrincipal.setBackground(new Color(0x06, 0x0B, 0x14));
 
-        // Se empieza con la primera cámara detectada.
+            for (Component c : panelPrincipal.getComponents()) {
+                if (c instanceof JLabel lbl) {
+                    lbl.setForeground(Color.WHITE);
+                    lbl.setFont(Tema.texto());
+                } else if (c instanceof JPanel pnl) {
+                    pnl.setBackground(new Color(0x06, 0x0B, 0x14));
+                    for (Component sub : pnl.getComponents()) {
+                        if (sub instanceof JLabel subLbl) {
+                            subLbl.setForeground(Color.WHITE);
+                            subLbl.setFont(Tema.texto());
+                        }
+                    }
+                }
+            }
+        }
+
+        cboCamara.removeAllItems();
+        for (String camara : camaras) {
+            cboCamara.addItem(camara);
+        }
+
+        estilizarComboBoxPaleta(cboCamara);
+
         camaraElegida = camaras.get(0);
 
         lblVideo.setHorizontalAlignment(SwingConstants.CENTER);
         lblVideo.setText("Encendiendo la cámara...");
+        lblVideo.setForeground(Color.WHITE);
+        lblVideo.setFont(Tema.subtitulo());
+
         lblEstado.setText("Coloque el código QR frente a la cámara.");
+        lblEstado.setForeground(Tema.TEXTO_SUAVE);
+        lblEstado.setFont(Tema.texto());
+
+        if (btnCancelar != null) {
+            btnCancelar.setBackground(new Color(0x0A, 0x12, 0x24));
+            btnCancelar.setForeground(Tema.TEXTO_SUAVE);
+            btnCancelar.setFocusPainted(false);
+            btnCancelar.setFont(Tema.texto());
+            btnCancelar.setBorder(new LineBorder(Tema.BORDE, 1, true));
+        }
+    }
+
+    /**
+     * Reemplaza el UI para forzar el fondo oscuro y pintar el texto directamente en el canal gráfico.
+     */
+    private void estilizarComboBoxPaleta(JComboBox<String> combo) {
+        if (combo == null) return;
+
+        Color fondoOscuro = new Color(0x0A, 0x12, 0x24);
+
+        combo.setUI(new BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton btn = new BasicArrowButton(BasicArrowButton.SOUTH, fondoOscuro, fondoOscuro, Tema.PRIMARIO, fondoOscuro);
+                btn.setBorder(new EmptyBorder(0, 4, 0, 8));
+                return btn;
+            }
+
+            @Override
+            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(fondoOscuro);
+                g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                g2.dispose();
+            }
+
+            @Override
+            public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
+                String texto = (String) combo.getSelectedItem();
+                if (texto == null) return;
+
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2.setFont(Tema.texto());
+                g2.setColor(Tema.PRIMARIO);
+
+                FontMetrics fm = g2.getFontMetrics();
+                int y = bounds.y + ((bounds.height - fm.getHeight()) / 2) + fm.getAscent();
+                g2.drawString(texto, bounds.x + 8, y);
+                g2.dispose();
+            }
+        });
+
+        combo.setBackground(fondoOscuro);
+        combo.setForeground(Tema.PRIMARIO);
+        combo.setFont(Tema.texto());
+        combo.setBorder(new LineBorder(Tema.BORDE, 1, true));
+
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                comp.setFont(Tema.texto());
+                comp.setBorder(new EmptyBorder(6, 10, 6, 10));
+
+                if (isSelected) {
+                    comp.setBackground(Tema.PRIMARIO);
+                    comp.setForeground(Color.WHITE);
+                } else {
+                    comp.setBackground(fondoOscuro);
+                    comp.setForeground(Color.WHITE);
+                }
+                return comp;
+            }
+        });
     }
 
     private void configurarEventos() {
-        // El hilo de lectura detecta el cambio y enciende la nueva cámara.
         cboCamara.addActionListener(e -> {
             camaraElegida = (String) cboCamara.getSelectedItem();
             lblVideo.setIcon(null);
@@ -119,31 +218,15 @@ public class LectorQrCamaraView {
         btnCancelar.addActionListener(e -> ventana.dispose());
     }
 
-
-    /*
-     * ========================================================
-     * LECTURA EN SEGUNDO PLANO
-     *
-     * Capturar imágenes de la cámara es lento y continuo. Si se
-     * hiciera en el hilo de la interfaz, la ventana se congelaría.
-     * Por eso se usa un SwingWorker:
-     *   doInBackground() captura y busca el QR en otro hilo,
-     *   process() muestra cada imagen en la ventana,
-     *   done() recibe el resultado y cierra la ventana.
-     * ========================================================
-     */
     private void iniciarLectura() {
         lector = new SwingWorker<>() {
-
             @Override
             protected String doInBackground() throws Exception {
                 String camaraEncendida = null;
                 try {
                     while (!isCancelled()) {
-
-                        // La primera vez, o si el usuario eligió otra cámara, se enciende la elegida.
                         String elegida = camaraElegida;
-                        if (!elegida.equals(camaraEncendida)) {
+                        if (elegida != null && !elegida.equals(camaraEncendida)) {
                             qrController.abrirCamara(elegida);
                             camaraEncendida = elegida;
                         }
@@ -151,8 +234,6 @@ public class LectorQrCamaraView {
                         BufferedImage imagen = qrController.capturarImagen();
                         if (imagen != null) {
                             publish(imagen);
-
-                            // En cada imagen se busca un QR; la mayoría no tiene ninguno.
                             Optional<String> codigo = qrController.buscarCodigo(imagen);
                             if (codigo.isPresent()) return codigo.get();
                         }
@@ -161,21 +242,18 @@ public class LectorQrCamaraView {
                     }
                     return null;
                 } finally {
-                    // Pase lo que pase (QR leído, cancelación o error), la cámara se apaga.
                     qrController.cerrarCamara();
                 }
             }
 
             @Override
             protected void process(List<BufferedImage> imagenes) {
-                // Solo interesa la más reciente.
                 lblVideo.setText(null);
                 lblVideo.setIcon(new ImageIcon(imagenes.get(imagenes.size() - 1)));
             }
 
             @Override
             protected void done() {
-                // Cancelado significa que el usuario cerró la ventana: no hay resultado.
                 if (isCancelled()) return;
 
                 try {
@@ -185,7 +263,9 @@ public class LectorQrCamaraView {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                ventana.dispose();
+                if (ventana != null) {
+                    ventana.dispose();
+                }
             }
         };
 

@@ -19,12 +19,16 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.RenderingHints;
 import java.awt.Window;
 
 /**
@@ -73,6 +77,7 @@ class DialogoRecuperacion {
         dialogo.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialogo.setContentPane(construirContenido());
         dialogo.setResizable(false);
+        // pack() ajusta el diálogo al contenido para que no se corte nada.
         dialogo.pack();
         dialogo.setLocationRelativeTo(duenio);
         dialogo.getRootPane().setDefaultButton(btnEnviar);
@@ -87,16 +92,27 @@ class DialogoRecuperacion {
 
     private JPanel construirContenido() {
         JPanel fondo = new JPanel(new GridBagLayout());
-        fondo.setBackground(Tema.FONDO);
+        fondo.setBackground(new Color(0x06, 0x0B, 0x14));
         fondo.setBorder(new EmptyBorder(22, 22, 22, 22));
 
-        PanelRedondeado tarjeta = new PanelRedondeado();
-        tarjeta.setLayout(new BorderLayout());
+        JPanel tarjeta = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(0x0A, 0x12, 0x24));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.setColor(Tema.BORDE);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                g2.dispose();
+            }
+        };
+        tarjeta.setOpaque(false);
         tarjeta.setBorder(new EmptyBorder(28, 36, 16, 36));
 
         JLabel titulo = new JLabel("Recuperar contraseña", SwingConstants.CENTER);
         titulo.setFont(Tema.titulo().deriveFont(24f));
-        titulo.setForeground(Tema.PRIMARIO);
+        titulo.setForeground(Color.WHITE);
 
         lblSubtitulo = new JLabel(
                 "<html><div style='text-align:center;'>Escriba su usuario o correo y le enviaremos<br>"
@@ -134,7 +150,7 @@ class DialogoRecuperacion {
 
         txtIdentificacion = new CampoTexto(18);
         txtIdentificacion.setAnchoPreferido(ANCHO_CAMPO);
-        txtIdentificacion.setPlaceholder("Ej. ojperez o correo@universidad.edu");
+        txtIdentificacion.setPlaceholder("Ej. jperez_lab o correo@universidad.edu");
 
         JLabel aviso = new JLabel(
                 "<html><div style='text-align:center;'>El código confirma que la cuenta es suya.<br>"
@@ -181,9 +197,11 @@ class DialogoRecuperacion {
 
         txtNueva = new CampoPassword(18);
         txtNueva.setAnchoPreferido(ANCHO_CAMPO);
+        txtNueva.setPlaceholder("••••••••••••");
 
         txtConfirmar = new CampoPassword(18);
         txtConfirmar.setAnchoPreferido(ANCHO_CAMPO);
+        txtConfirmar.setPlaceholder("••••••••••••");
 
         btnRestablecer = new BotonRedondeado("Restablecer contraseña", BotonRedondeado.Estilo.PRIMARIO);
         BotonRedondeado btnVolver = new BotonRedondeado("Volver", BotonRedondeado.Estilo.TEXTO);
@@ -199,7 +217,7 @@ class DialogoRecuperacion {
         obligatorios.setFont(Tema.etiquetaMedia());
         obligatorios.setForeground(Tema.TEXTO_SUAVE);
 
-        JComponent bloqueCodigo = bloqueCampo("CÓDIGO", txtCodigo);
+        JComponent bloqueCodigo = bloqueCampo("CÓDIGO DE VERIFICACIÓN", txtCodigo);
         JComponent bloqueNueva = bloqueCampo("NUEVA CONTRASEÑA", txtNueva);
         JComponent bloqueConfirmar = bloqueCampo("CONFIRMAR CONTRASEÑA", txtConfirmar);
 
@@ -248,7 +266,7 @@ class DialogoRecuperacion {
 
         JLabel etiqueta = new JLabel(textoEtiqueta);
         etiqueta.setFont(Tema.etiqueta());
-        etiqueta.setForeground(Tema.ETIQUETA);
+        etiqueta.setForeground(Color.WHITE);
         etiqueta.setAlignmentX(Component.LEFT_ALIGNMENT);
         etiqueta.setBorder(new EmptyBorder(0, 2, 0, 0));
 
@@ -312,7 +330,7 @@ class DialogoRecuperacion {
             lblAviso.setText("<html><div style='text-align:center;'>No hay correo configurado. "
                     + "Su código de verificación es:<br><span style='font-size:18pt;'><b>"
                     + solicitud.getCodigoEnPantalla() + "</b></span></div></html>");
-            lblAviso.setForeground(Tema.PRIMARIO);
+            lblAviso.setForeground(Tema.ETIQUETA);
         }
 
         lblSubtitulo.setText("Escriba el código recibido y su nueva contraseña.");

@@ -4,54 +4,50 @@ import java.awt.Color;
 import java.awt.Font;
 
 /**
- * Paleta y tipografías centralizadas.
- *
- * Los colores salen de la referencia de diseño (Stitch): azul principal
- * #1D5BD8 sobre fondos muy claros, con textos gris azulado.
+ * Paleta y tipografías centralizadas para MODO OSCURO (Dark Theme).
  */
 final class Tema {
 
     private Tema() { }
 
-    /** Segoe UI está en Windows; si no existe, Java usa una fuente por defecto parecida. */
     static final String FUENTE = "Segoe UI";
 
-    // Fondos
-    static final Color FONDO = new Color(0xF4F8FB);
-    static final Color PANEL = Color.WHITE;
-    static final Color SUPERFICIE = Color.WHITE;
-    static final Color SUPERFICIE_ALT = new Color(0xF8FAFD);
+    // Fondos oscuros de la interfaz
+    static final Color FONDO = new Color(0x06, 0x0B, 0x14);             // Fondo general profundo
+    static final Color PANEL = new Color(0x09, 0x11, 0x22);             // Paneles contenedores / inputs
+    static final Color SUPERFICIE = new Color(0x0B, 0x12, 0x22);        // Superficie principal
+    static final Color SUPERFICIE_ALT = new Color(0x0C, 0x16, 0x2C);    // Tarjeta derecha
 
-    // Azul principal (tomado de la referencia #1D5BD8)
-    static final Color PRIMARIO = new Color(0x1D5BD8);
-    static final Color PRIMARIO_HOVER = new Color(0x1849B4);
-    static final Color PRIMARIO_PRESIONADO = new Color(0x143C93);
-    static final Color AZUL_CLARO = new Color(0xE7EFFC);
-    static final Color AZUL_CLARO_HOVER = new Color(0xD6E4FA);
+    // Azul Neón / Cian (Colores de la imagen)
+    static final Color PRIMARIO = new Color(0x00, 0xC9, 0xFF);          // Botón principal cian brillante
+    static final Color PRIMARIO_HOVER = new Color(0x33, 0xD4, 0xFF);    // Hover cian brillante
+    static final Color PRIMARIO_PRESIONADO = new Color(0x00, 0xA3, 0xCC);
+    static final Color AZUL_CLARO = new Color(0x13, 0x26, 0x40);        // Fondo botones secundarios
+    static final Color AZUL_CLARO_HOVER = new Color(0x1E, 0x3A, 0x5F);
 
     // Textos y bordes
-    static final Color TEXTO = new Color(0x1F2937);
-    static final Color ETIQUETA = new Color(0x334155);
-    static final Color TEXTO_SUAVE = new Color(0x6B7280);
-    static final Color PLACEHOLDER = new Color(0x94A3B8);
-    static final Color PIE = new Color(0x94A3B8);
-    static final Color BORDE = new Color(0xDCE3EC);
-    static final Color BORDE_CAMPO = new Color(0xD7DEE8);
+    static final Color TEXTO = new Color(0xFF, 0xFF, 0xFF);             // Texto blanco/brillante
+    static final Color ETIQUETA = new Color(0x38, 0xBD, 0xF8);          // Títulos pequeños y acentos cian
+    static final Color TEXTO_SUAVE = new Color(0x8E, 0x9B, 0xB0);       // Subtítulos
+    static final Color PLACEHOLDER = new Color(0x47, 0x55, 0x69);       // Placeholder tenue
+    static final Color PIE = new Color(0x64, 0x74, 0x8B);               // Pie de página
+    static final Color BORDE = new Color(0x13, 0x26, 0x40);             // Bordes oscuros
+    static final Color BORDE_CAMPO = new Color(0x00, 0xC9, 0xFF);       // Borde cian para inputs
 
     // Estados
-    static final Color PELIGRO = new Color(0xC0392B);
-    static final Color PELIGRO_HOVER = new Color(0xA93226);
-    static final Color PELIGRO_PRESIONADO = new Color(0x922B21);
-    static final Color EXITO = new Color(0x22C55E);
-    static final Color DESHABILITADO = new Color(0xC7CDD6);
-    static final Color DESHABILITADO_TEXTO = new Color(0x8A9099);
+    static final Color PELIGRO = new Color(0xEF, 0x44, 0x44);
+    static final Color PELIGRO_HOVER = new Color(0xDC, 0x26, 0x26);
+    static final Color PELIGRO_PRESIONADO = new Color(0xB9, 0x1C, 0x1C);
+    static final Color EXITO = new Color(0x10, 0xB9, 0x81);
+    static final Color DESHABILITADO = new Color(0x1E, 0x29, 0x3B);
+    static final Color DESHABILITADO_TEXTO = new Color(0x47, 0x55, 0x69);
 
-    static Font titulo() { return new Font(FUENTE, Font.BOLD, 30); }
-    static Font subtitulo() { return new Font(FUENTE, Font.PLAIN, 13); }
+    static Font titulo() { return new Font(FUENTE, Font.BOLD, 26); }
+    static Font subtitulo() { return new Font(FUENTE, Font.PLAIN, 12); }
     static Font etiqueta() { return new Font(FUENTE, Font.BOLD, 11); }
     static Font etiquetaMedia() { return new Font(FUENTE, Font.BOLD, 12); }
-    static Font texto() { return new Font(FUENTE, Font.PLAIN, 14); }
-    static Font boton() { return new Font(FUENTE, Font.BOLD, 13); }
+    static Font texto() { return new Font(FUENTE, Font.PLAIN, 13); }
+    static Font boton() { return new Font(FUENTE, Font.BOLD, 14); }
     static Font pie() { return new Font(FUENTE, Font.PLAIN, 11); }
     static Font enlace() { return new Font(FUENTE, Font.PLAIN, 12); }
 }

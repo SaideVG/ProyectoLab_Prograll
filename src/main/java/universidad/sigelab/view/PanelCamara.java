@@ -52,7 +52,7 @@ class PanelCamara extends JPanel {
     PanelCamara() {
         setPreferredSize(new Dimension(ANCHO, ALTO));
         setMinimumSize(new Dimension(ANCHO, ALTO));
-        setBackground(new Color(0x0F172A));
+        setBackground(new Color(0x0F, 0x17, 0x2A));
         setOpaque(true);
     }
 
@@ -194,8 +194,13 @@ class PanelCamara extends JPanel {
                     if (r != null) {
                         g2.setColor(Tema.EXITO);
                         g2.setStroke(new BasicStroke(3f));
-                        g2.drawRoundRect(x + (int) (r.x * escala), y + (int) (r.y * escala),
-                                (int) (r.width * escala), (int) (r.height * escala), 18, 18);
+                        g2.drawRoundRect(
+                                x + (int) (r.x * escala),
+                                y + (int) (r.y * escala),
+                                (int) (r.width * escala),
+                                (int) (r.height * escala),
+                                18, 18
+                        );
                     }
                 }
             }
@@ -211,7 +216,6 @@ class PanelCamara extends JPanel {
 
     /**
      * Convierte el fotograma BGR de OpenCV a una imagen con los colores reales.
-     *
      * Se empaqueta cada píxel a mano (B, G, R → rojo, verde, azul) en vez de usar
      * el raster directamente, que según la máquina puede intercambiar o invertir
      * los canales. Es la forma que garantiza colores fieles.

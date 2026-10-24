@@ -2,180 +2,116 @@ package universidad.sigelab.view;
 
 import javax.swing.JButton;
 import javax.swing.Timer;
-import java.awt.BasicStroke;
+import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * Botón con esquinas redondeadas y animación.
- *
- * Tiene tres estados visuales (normal, hover y presionado) y una pequeña
- * animación de escala al pasar el mouse y al presionar. El método
- * {@link #destello()} hace un rebote más notorio (se usa en "Registro nuevo").
- */
-class BotonRedondeado extends JButton {
+public class BotonRedondeado extends JButton {
 
-    /** Variantes de color para no repetir colores en cada pantalla. */
-    enum Estilo { PRIMARIO, SECUNDARIO, CLARO, TEXTO, PELIGRO }
-
-    private Color fondo;
-    private Color fondoHover;
-    private Color fondoPresionado;
-    private Color colorTexto;
-    private Color colorBorde;
-
-    private int radio = 12;
-    private boolean sobreElBoton;
-    private boolean presionado;
-    private float escala = 1f;
-    private Timer animacion;
-
-    BotonRedondeado(String texto) {
-        this(texto, Estilo.PRIMARIO);
+    public enum Estilo {
+        PRIMARIO, SECUNDARIO, TEXTO
     }
 
-    BotonRedondeado(String texto, Estilo estilo) {
-        super(texto);
-        setContentAreaFilled(false);
-        setBorderPainted(false);
-        setFocusPainted(false);
-        setOpaque(false);
-        setFont(Tema.boton());
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setMargin(new Insets(0, 0, 0, 0));
-        setRolloverEnabled(false);
+    private final Estilo estilo;
 
-        aplicarEstilo(estilo);
+    // Animación de resplandor neón
+    private float alphaGlow = 0.4f;
+    private float incrementoGlow = 0.02f;
+    private final Timer timerGlow;
+
+    private int desplazamientoFlecha = 0;
+    private final Timer timerFlecha;
+    private boolean mouseEncima = false;
+
+    // Margen para dar espacio al resplandor y evitar que Swing lo corte
+    private final int marginGlow = 6;
+
+    public BotonRedondeado(String texto, Estilo estilo) {
+        super(texto);
+        this.estilo = estilo;
+        setFocusPainted(false);
+        setBorderPainted(false);
+        setContentAreaFilled(false);
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setFont(Tema.boton());
+
+        if (estilo == Estilo.PRIMARIO) {
+            setBorder(new EmptyBorder(0, 20, 0, 40));
+            setBackground(Tema.PRIMARIO);
+            setForeground(new Color(0x03, 0x10, 0x1E));
+        } else if (estilo == Estilo.SECUNDARIO) {
+            setBorder(new EmptyBorder(0, 40, 0, 20));
+            setBackground(Tema.AZUL_CLARO);
+            setForeground(Tema.TEXTO);
+        } else {
+            setBorder(new EmptyBorder(0, 10, 0, 10));
+            setBackground(new Color(0, 0, 0, 0));
+            setForeground(Tema.TEXTO_SUAVE);
+        }
+
+        // Timer para la respiración de luz neón
+        timerGlow = new Timer(20, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                alphaGlow += incrementoGlow;
+                if (alphaGlow >= 1.0f) {
+                    alphaGlow = 1.0f;
+                    incrementoGlow = -incrementoGlow;
+                } else if (alphaGlow <= 0.3f) {
+                    alphaGlow = 0.3f;
+                    incrementoGlow = -incrementoGlow;
+                }
+                repaint();
+            }
+        });
+
+        // Timer para desplazamiento suave de la flecha
+        timerFlecha = new Timer(15, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (mouseEncima) {
+                    if (desplazamientoFlecha < 5) {
+                        desplazamientoFlecha++;
+                        repaint();
+                    } else {
+                        timerFlecha.stop();
+                    }
+                } else {
+                    if (desplazamientoFlecha > 0) {
+                        desplazamientoFlecha--;
+                        repaint();
+                    } else {
+                        timerFlecha.stop();
+                    }
+                }
+            }
+        });
+
+        if (estilo != Estilo.TEXTO) {
+            timerGlow.start();
+        }
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                sobreElBoton = true;
-                repaint();
+                mouseEncima = true;
+                timerFlecha.start();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                sobreElBoton = false;
-                presionado = false;
-                animarA(1f);
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (isEnabled()) {
-                    presionado = true;
-                    animarA(0.95f);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                presionado = false;
-                animarA(1f);
+                mouseEncima = false;
+                timerFlecha.start();
             }
         });
-    }
-
-    final void aplicarEstilo(Estilo estilo) {
-        switch (estilo) {
-            case PRIMARIO -> {
-                fondo = Tema.PRIMARIO;
-                fondoHover = Tema.PRIMARIO_HOVER;
-                fondoPresionado = Tema.PRIMARIO_PRESIONADO;
-                colorTexto = Color.WHITE;
-                colorBorde = null;
-            }
-            case SECUNDARIO -> {
-                fondo = Tema.SUPERFICIE;
-                fondoHover = Tema.AZUL_CLARO;
-                fondoPresionado = Tema.AZUL_CLARO_HOVER;
-                colorTexto = Tema.PRIMARIO;
-                colorBorde = Tema.PRIMARIO;
-            }
-            case CLARO -> {
-                fondo = Tema.AZUL_CLARO;
-                fondoHover = Tema.AZUL_CLARO_HOVER;
-                fondoPresionado = Tema.AZUL_CLARO_HOVER;
-                colorTexto = Tema.PRIMARIO;
-                colorBorde = null;
-            }
-            case TEXTO -> {
-                fondo = new Color(0, 0, 0, 0);
-                fondoHover = Tema.AZUL_CLARO;
-                fondoPresionado = Tema.AZUL_CLARO_HOVER;
-                colorTexto = Tema.TEXTO_SUAVE;
-                colorBorde = null;
-            }
-            case PELIGRO -> {
-                fondo = Tema.PELIGRO;
-                fondoHover = Tema.PELIGRO_HOVER;
-                fondoPresionado = Tema.PELIGRO_PRESIONADO;
-                colorTexto = Color.WHITE;
-                colorBorde = null;
-            }
-        }
-        repaint();
-    }
-
-    void setRadio(int radio) {
-        this.radio = radio;
-        repaint();
-    }
-
-    /** Animación breve: encoge un poco y vuelve al tamaño normal. */
-    private void animarA(float destino) {
-        if (animacion != null) animacion.stop();
-        animacion = new Timer(12, e -> {
-            float paso = 0.05f;
-            if (Math.abs(escala - destino) <= paso) {
-                escala = destino;
-                ((Timer) e.getSource()).stop();
-            } else {
-                escala += destino > escala ? paso : -paso;
-            }
-            repaint();
-        });
-        animacion.start();
-    }
-
-    /**
-     * Rebote para llamar la atención cuando se da clic.
-     * Se conserva dentro de los límites del botón para que no se recorte.
-     */
-    void destello() {
-        if (animacion != null) animacion.stop();
-        final float[] secuencia = {1f, 0.90f, 1.02f, 1f};
-        final int[] indice = {0};
-        animacion = new Timer(60, e -> {
-            escala = secuencia[indice[0]];
-            repaint();
-            indice[0]++;
-            if (indice[0] >= secuencia.length) {
-                ((Timer) e.getSource()).stop();
-            }
-        });
-        animacion.setInitialDelay(0);
-        animacion.start();
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        Dimension base = super.getPreferredSize();
-        return new Dimension(base.width + 30, Math.max(46, base.height + 18));
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return getPreferredSize();
     }
 
     @Override
@@ -183,41 +119,65 @@ class BotonRedondeado extends JButton {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int ancho = getWidth();
-        int alto = getHeight();
-        int anchoPintado = Math.round(ancho * escala);
-        int altoPintado = Math.round(alto * escala);
-        int x = (ancho - anchoPintado) / 2;
-        int y = (alto - altoPintado) / 2;
+        int m = (estilo != Estilo.TEXTO) ? marginGlow : 0;
+        int x = m;
+        int y = m;
+        int w = getWidth() - (m * 2);
+        int h = getHeight() - (m * 2);
+        int radio = 24;
 
-        Color relleno;
-        if (!isEnabled()) {
-            relleno = Tema.DESHABILITADO;
-        } else if (presionado) {
-            relleno = fondoPresionado;
-        } else if (sobreElBoton) {
-            relleno = fondoHover;
-        } else {
-            relleno = fondo;
+        // 1. Resplandor Neón (Glow dibujado dentro de las fronteras visibles del componente)
+        if (estilo != Estilo.TEXTO) {
+            for (int i = m; i > 0; i--) {
+                int alphaVal = (int) ((35 / i) * alphaGlow);
+                g2.setColor(new Color(0x00, 0xD8, 0xF6, Math.min(255, alphaVal)));
+                g2.fillRoundRect(x - i, y - i, w + (i * 2), h + (i * 2), radio + (i * 2), radio + (i * 2));
+            }
         }
 
-        g2.setColor(relleno);
-        g2.fillRoundRect(x, y, anchoPintado - 1, altoPintado - 1, radio, radio);
+        // 2. Fondo y Vectores
+        if (estilo == Estilo.PRIMARIO) {
+            int r = (int) (0x00 + (0x00 * alphaGlow));
+            int green = (int) (0xB0 + (0x28 * alphaGlow));
+            int b = (int) (0xD0 + (0x26 * alphaGlow));
 
-        if (colorBorde != null && isEnabled()) {
-            g2.setColor(colorBorde);
-            g2.setStroke(new BasicStroke(1.4f));
-            g2.drawRoundRect(x, y, anchoPintado - 1, altoPintado - 1, radio, radio);
+            Color colorRelleno = getModel().isRollover() ? Tema.PRIMARIO_HOVER : new Color(r, Math.min(255, green), Math.min(255, b));
+            g2.setColor(colorRelleno);
+            g2.fillRoundRect(x, y, w, h, radio, radio);
+
+            // Flecha ➔
+            g2.setColor(getForeground());
+            int arrowX = x + w - 24 + desplazamientoFlecha;
+            int arrowY = y + (h / 2);
+            g2.drawLine(arrowX - 8, arrowY, arrowX, arrowY);
+            g2.drawLine(arrowX - 3, arrowY - 3, arrowX, arrowY);
+            g2.drawLine(arrowX - 3, arrowY + 3, arrowX, arrowY);
+
+        } else if (estilo == Estilo.SECUNDARIO) {
+            g2.setColor(getModel().isRollover() ? Tema.AZUL_CLARO_HOVER : getBackground());
+            g2.fillRoundRect(x, y, w, h, radio, radio);
+
+            int alphaBorde = (int) (120 + (135 * alphaGlow));
+            g2.setColor(new Color(0x00, 0xD8, 0xF6, Math.min(255, alphaBorde)));
+            g2.drawRoundRect(x, y, w, h, radio, radio);
+
+            // Silueta Usuario 👤
+            g2.setColor(Tema.ETIQUETA);
+            int userX = x + 18;
+            int userY = y + (h / 2);
+            g2.drawOval(userX, userY - 7, 6, 6);
+            g2.drawArc(userX - 3, userY, 12, 8, 0, 180);
         }
 
-        String texto = getText();
-        g2.setFont(getFont());
-        g2.setColor(isEnabled() ? colorTexto : Tema.DESHABILITADO_TEXTO);
-        FontMetrics fm = g2.getFontMetrics();
-        int tx = x + (anchoPintado - fm.stringWidth(texto)) / 2;
-        int ty = y + (altoPintado - fm.getHeight()) / 2 + fm.getAscent();
-        g2.drawString(texto, tx, ty);
-
+        super.paintComponent(g);
         g2.dispose();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(super.getPreferredSize().width, 52);
+    }
+
+    public void destello() {
     }
 }
