@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
 
@@ -27,13 +28,51 @@ public class PanelIlustracion extends JPanel {
         };
         for (String r : rutas) {
             URL url = getClass().getResource(r);
-            if (url != null) return new ImageIcon(url);
+            if (url != null) return recortarMargenes(new ImageIcon(url));
         }
         File f1 = new File("src/main/resources/images/logo_nube.png.png");
-        if (f1.exists()) return new ImageIcon(f1.getAbsolutePath());
+        if (f1.exists()) return recortarMargenes(new ImageIcon(f1.getAbsolutePath()));
         File f2 = new File("src/main/resources/images/logo_nube.png");
-        if (f2.exists()) return new ImageIcon(f2.getAbsolutePath());
+        if (f2.exists()) return recortarMargenes(new ImageIcon(f2.getAbsolutePath()));
         return null;
+    }
+
+    /**
+     * Elimina el margen transparente que rodea al dibujo, para poder escalar el
+     * logo por su contenido real en lugar del lienzo original.
+     */
+    private ImageIcon recortarMargenes(ImageIcon icono) {
+        try {
+            int w = icono.getIconWidth();
+            int h = icono.getIconHeight();
+            if (w <= 0 || h <= 0) return icono;
+
+            BufferedImage origen = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = origen.createGraphics();
+            g.drawImage(icono.getImage(), 0, 0, null);
+            g.dispose();
+
+            int[] pixeles = origen.getRGB(0, 0, w, h, null, 0, w);
+            int minX = w, minY = h, maxX = -1, maxY = -1;
+            for (int y = 0; y < h; y++) {
+                int fila = y * w;
+                for (int x = 0; x < w; x++) {
+                    if ((pixeles[fila + x] >>> 24) > 12) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+            if (maxX < minX || maxY < minY) return icono; // imagen vacía
+
+            BufferedImage recorte = origen.getSubimage(
+                    minX, minY, maxX - minX + 1, maxY - minY + 1);
+            return new ImageIcon(recorte);
+        } catch (Exception e) {
+            return icono;
+        }
     }
 
     @Override
@@ -41,7 +80,7 @@ public class PanelIlustracion extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
         int ancho = getWidth();
         int alto = getHeight();
@@ -71,22 +110,31 @@ public class PanelIlustracion extends JPanel {
         g2.drawRoundRect(tarjetaX, tarjetaY, tarjetaW, tarjetaH, 20, 20);
 
         int cx = tarjetaX + (tarjetaW / 2);
-        int cy = tarjetaY + 115;
 
-        // Resplandor neón cian animado en el fondo del logo de la nube
-        for (int r = 100; r > 0; r -= 5) {
+        // Dimensiones del logo ya recortado (proporción real del contenido)
+        int imgW = tarjetaW - 40;
+        int imgH = 200;
+        if (logoNube != null && logoNube.getIconWidth() > 0) {
+            imgH = (int) ((double) logoNube.getIconHeight() / logoNube.getIconWidth() * imgW);
+            if (imgH > 210) {
+                imgH = 210;
+                imgW = (int) ((double) logoNube.getIconWidth() / logoNube.getIconHeight() * imgH);
+            }
+        }
+        int imgX = cx - (imgW / 2);
+        // Centrado en el espacio libre que queda encima del badge
+        int imgY = tarjetaY + (tarjetaH - 60 - imgH) / 2;
+        int cy = imgY + (imgH / 2);
+
+        // Resplandor neón cian animado en el fondo del logo
+        int radioGlow = (Math.max(imgW, imgH) / 2) + 10;
+        for (int r = radioGlow; r > 0; r -= 5) {
             g2.setColor(new Color(0x00, 0xD8, 0xF6, (int) ((18 / (r / 5.0)) * alpha)));
             g2.fillOval(cx - r, cy - r, r * 2, r * 2);
         }
 
         // Dibujo del Logo de la Nube
         if (logoNube != null && logoNube.getImage() != null) {
-            int imgW = 230;
-            int imgH = (int) ((double) logoNube.getIconHeight() / logoNube.getIconWidth() * imgW);
-            if (imgH > 150) imgH = 150;
-            int imgX = cx - (imgW / 2);
-            int imgY = cy - (imgH / 2) - 10;
-
             g2.drawImage(logoNube.getImage(), imgX, imgY, imgW, imgH, this);
         }
 
