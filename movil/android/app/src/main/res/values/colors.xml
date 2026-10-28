@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mismo fondo oscuro de SIGELAB, para que no aparezca un destello blanco al abrir la app -->
+    <color name="fondo_sigelab">#060B14</color>
+</resources>
