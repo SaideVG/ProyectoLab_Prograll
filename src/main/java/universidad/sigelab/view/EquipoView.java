@@ -269,7 +269,6 @@ public class EquipoView {
         cboLaboratorio = new JComboBox<>();
         estilarCombo(cboLaboratorio);
 
-        formGrid.add(crearCampoBox("ID", txtId));
         formGrid.add(crearCampoBox("CÓDIGO *", txtCodigo));
         formGrid.add(crearCampoBox("NOMBRE *", txtNombre));
         formGrid.add(crearCampoBox("TIPO *", cboTipo));
@@ -281,6 +280,16 @@ public class EquipoView {
         formGrid.add(crearCampoBox("OBSERVACIONES", txtObservaciones));
 
         card.add(formGrid);
+
+        /*
+         * El ID lo asigna la base de datos al guardar (IDENTITY), así que el usuario no lo escribe.
+         * El campo sigue en el formulario, pero oculto: al seleccionar una fila guarda el ID del
+         * equipo que se va a actualizar o al que se le genera el QR. En la tabla el ID sí se muestra.
+         * Va fuera de la cuadrícula porque GridLayout le reservaría un espacio vacío aunque esté oculto.
+         */
+        JPanel campoId = crearCampoBox("ID", txtId);
+        campoId.setVisible(false);
+        card.add(campoId);
         card.add(Box.createVerticalStrut(14));
 
         JPanel btnBox = new JPanel(new GridLayout(2, 2, 8, 8));

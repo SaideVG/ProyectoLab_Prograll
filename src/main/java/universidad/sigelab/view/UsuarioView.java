@@ -294,20 +294,25 @@ public class UsuarioView {
         estilarCampoTexto(txtCorreo);
         estilarComboBox(cboRol);
 
-        grid3x2.add(crearCampo("🆔 ID", txtId));
+        // Sin el ID a la vista, el rol entra en la cuadrícula y quedan 3 filas parejas de 2 campos.
         grid3x2.add(crearCampo("👤 NOMBRE *", txtNombre));
         grid3x2.add(crearCampo("👥 APELLIDO *", txtApellido));
         grid3x2.add(crearCampo("👤 USUARIO *", txtUsuario));
         grid3x2.add(crearCampo("🔐 CONTRASEÑA", txtPassword));
         grid3x2.add(crearCampo("📧 CORREO", txtCorreo));
+        grid3x2.add(crearCampo("🪪 ROL *", cboRol));
 
-        JPanel panelRolCentrado = new JPanel(new BorderLayout());
-        panelRolCentrado.setOpaque(false);
-        panelRolCentrado.setBorder(new EmptyBorder(6, 0, 0, 0));
-        panelRolCentrado.add(crearCampo("🪪 ROL *", cboRol), BorderLayout.CENTER);
+        /*
+         * El ID lo asigna la base de datos al guardar (IDENTITY), así que el usuario no lo escribe.
+         * El campo sigue en el formulario, pero oculto: al seleccionar una fila guarda el ID del
+         * usuario que se va a actualizar o desactivar. En la tabla el ID sí se muestra.
+         * BoxLayout no le reserva espacio a un componente oculto.
+         */
+        JPanel campoId = crearCampo("🆔 ID", txtId);
+        campoId.setVisible(false);
+        formContainer.add(campoId);
 
         formContainer.add(grid3x2);
-        formContainer.add(panelRolCentrado);
 
         JPanel botoneraForm = new JPanel(new GridLayout(1, 4, 12, 0));
         botoneraForm.setOpaque(false);

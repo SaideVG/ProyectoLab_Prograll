@@ -312,7 +312,7 @@ public class TipoEquipoView {
         formContainer.setLayout(new BoxLayout(formContainer, BoxLayout.Y_AXIS));
         formContainer.setOpaque(false);
 
-        JPanel grid = new JPanel(new GridLayout(1, 2, 20, 12));
+        JPanel grid = new JPanel(new GridLayout(1, 1, 20, 12));
         grid.setOpaque(false);
 
         if (txtId == null) txtId = new JTextField();
@@ -324,13 +324,22 @@ public class TipoEquipoView {
         estilarCampoTexto(txtNombre);
         estilarCampoTexto(txtDescripcion);
 
-        grid.add(crearCampo("🆔 ID IDENTIFICADOR", txtId));
         grid.add(crearCampo("🏷️ NOMBRE DEL TIPO *", txtNombre));
 
         JPanel panelDesc = new JPanel(new BorderLayout());
         panelDesc.setOpaque(false);
         panelDesc.setBorder(new EmptyBorder(10, 0, 0, 0));
         panelDesc.add(crearCampo("📝 DESCRIPCIÓN DETALLADA", txtDescripcion), BorderLayout.CENTER);
+
+        /*
+         * El ID lo asigna la base de datos al guardar (IDENTITY), así que el usuario no lo escribe.
+         * El campo sigue en el formulario, pero oculto: al seleccionar una fila guarda el ID del tipo
+         * que se va a actualizar o desactivar. En la tabla el ID sí se muestra.
+         * BoxLayout no le reserva espacio a un componente oculto.
+         */
+        JPanel campoId = crearCampo("🆔 ID IDENTIFICADOR", txtId);
+        campoId.setVisible(false);
+        formContainer.add(campoId);
 
         formContainer.add(grid);
         formContainer.add(panelDesc);

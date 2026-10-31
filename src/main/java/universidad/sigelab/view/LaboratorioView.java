@@ -330,23 +330,34 @@ public class LaboratorioView {
         txtUbicacion = crearInput();
         txtCapacidad = crearInput();
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.08;
-        grid.add(crearLabelCampo("ID"), gbc);
+        /*
+         * El ID lo asigna la base de datos al guardar (IDENTITY), así que el usuario no lo escribe.
+         * El campo sigue en el formulario, pero oculto: al seleccionar una fila guarda el ID del
+         * laboratorio que se va a actualizar o desactivar. En la tabla el ID sí se muestra.
+         * GridBagLayout no les reserva espacio a los componentes ocultos.
+         */
+        JLabel lblId = crearLabelCampo("ID");
+        lblId.setVisible(false);
+        txtId.setVisible(false);
 
-        gbc.gridx = 1; gbc.weightx = 0.15;
+        gbc.gridx = 0; gbc.gridy = 2;
+        grid.add(lblId, gbc);
+
+        gbc.gridx = 1;
         grid.add(txtId, gbc);
 
-        gbc.gridx = 2; gbc.weightx = 0.10;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.08;
         grid.add(crearLabelCampo("CÓDIGO *"), gbc);
 
-        gbc.gridx = 3; gbc.weightx = 0.22;
+        gbc.gridx = 1; gbc.weightx = 0.15;
         grid.add(txtCodigo, gbc);
 
-        gbc.gridx = 4; gbc.weightx = 0.10;
+        gbc.gridx = 2; gbc.weightx = 0.10;
         grid.add(crearLabelCampo("NOMBRE *"), gbc);
 
-        gbc.gridx = 5; gbc.weightx = 0.35;
+        gbc.gridx = 3; gbc.gridwidth = 3; gbc.weightx = 0.67;
         grid.add(txtNombre, gbc);
+        gbc.gridwidth = 1;
 
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.08;
         grid.add(crearLabelCampo("UBICACIÓN *"), gbc);
