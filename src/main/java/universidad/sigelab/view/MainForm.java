@@ -46,6 +46,8 @@ public class MainForm extends JFrame {
         setSize(1180, 850);
         setMinimumSize(new Dimension(1000, 750));
         setLocationRelativeTo(null);
+        // Abre maximizada; al restaurarla vuelve al tamaño de arriba.
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         addWindowListener(new WindowAdapter() {
             @Override

@@ -374,10 +374,12 @@ public class LoginForm {
         JFrame frame = new JFrame("SIGELAB - Inicio de sesión");
         frame.setContentPane(loginForm.getPanelPrincipal());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
 
         frame.pack();
+        frame.setMinimumSize(frame.getSize());
         frame.setLocationRelativeTo(null);
+        // Abre maximizada; al restaurarla vuelve al tamaño calculado por pack().
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         frame.getRootPane().setDefaultButton(loginForm.btnIngresar);
 
